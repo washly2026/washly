@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapPin, Navigation, Loader2, Car, Bike, Calendar, Clock, CheckCircle, AlertTriangle, ChevronRight, Award } from 'lucide-react';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 const timeSlots = ['08:00 AM', '09:30 AM', '11:00 AM', '12:30 PM', '02:00 PM', '03:30 PM', '05:00 PM'];
 

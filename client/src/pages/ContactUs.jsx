@@ -5,7 +5,7 @@ const locations = [
   { name: 'Benz Circle Studio', phone: '+91 866 257 1111', address: 'Shop 12, Ground Floor, Benz Circle, Vijayawada, AP 520010' },
 ];
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 export default function ContactUs() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });

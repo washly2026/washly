@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 import { Car, Bike, Sparkles, Star, CheckCircle, ChevronRight, ArrowRight, Shield, Clock, Navigation, Loader2 } from 'lucide-react';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 // Dynamic premium images with descriptive design categories
 const interactiveGallery = [

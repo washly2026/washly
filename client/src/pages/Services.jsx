@@ -1,9 +1,9 @@
-git commit -m "Initial commit: MERN stack project structure"import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, Bike, CheckCircle, AlertTriangle, CalendarRange, Clock, ArrowRight, Loader2, Award } from 'lucide-react';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 const containerVariants = {
   hidden: {},

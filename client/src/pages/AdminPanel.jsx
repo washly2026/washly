@@ -5,7 +5,7 @@ import {
   Bike, Car, X, TrendingUp, Settings, Plus, Edit2, Trash2, Calendar, Mail
 } from 'lucide-react';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 const statusConfig = {
   'Pending':     { bg: 'bg-amber-50',   text: 'text-amber-700',  border: 'border-amber-300',  dot: 'bg-amber-400' },
