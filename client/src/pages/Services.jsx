@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+git commit -m "Initial commit: MERN stack project structure"import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, Bike, CheckCircle, AlertTriangle, CalendarRange, Clock, ArrowRight, Loader2, Award } from 'lucide-react';
