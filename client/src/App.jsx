@@ -59,7 +59,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="flex flex-col min-h-screen" style={{ background: '#fafaf8', color: '#1a1917' }}>
+      <div className="flex flex-col min-h-screen overflow-x-hidden" style={{ background: '#fafaf8', color: '#1a1917' }}>
         <Navbar />
         <main className="flex-grow">
           <Routes>
