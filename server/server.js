@@ -187,6 +187,30 @@ const transporter = nodemailer.createTransport({
   family: 4 // Forces IPv4 DNS resolution
 });
 
+// Helper to send email via HTTP relay (bypassing Render SMTP block)
+async function sendEmailRelay(subject, htmlContent) {
+  const relayUrl = (process.env.EMAIL_RELAY_URL || '').trim();
+  if (!relayUrl) return false;
+  
+  try {
+    const response = await fetch(relayUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, html: htmlContent })
+    });
+    const data = await response.json();
+    if (data.success) {
+      console.log('Email successfully sent via HTTP Relay.');
+      return true;
+    } else {
+      console.error('HTTP Relay returned error:', data.error);
+    }
+  } catch (err) {
+    console.error('Failed to send email via HTTP Relay:', err.message);
+  }
+  return false;
+}
+
 // Helper function to send booking email notification to Admin
 async function sendBookingEmail(booking) {
   const mailOptions = {
@@ -210,6 +234,11 @@ async function sendBookingEmail(booking) {
     `
   };
 
+  // Try HTTP Relay first (to bypass Render blocks)
+  const sentViaRelay = await sendEmailRelay(mailOptions.subject, mailOptions.html);
+  if (sentViaRelay) return;
+
+  // Fallback to SMTP
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log(`Booking notification email successfully sent. MessageId: ${info.messageId}`);
@@ -236,6 +265,11 @@ async function sendContactEmail(contact) {
     `
   };
 
+  // Try HTTP Relay first (to bypass Render blocks)
+  const sentViaRelay = await sendEmailRelay(mailOptions.subject, mailOptions.html);
+  if (sentViaRelay) return;
+
+  // Fallback to SMTP
   try {
     await transporter.sendMail(mailOptions);
     console.log(`Contact form notification email successfully sent.`);
