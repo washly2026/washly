@@ -175,13 +175,16 @@ async function seedDatabaseIfNeeded() {
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'washly2514@gmail.com').trim();
 
-// Setup Nodemailer Mail Transporter for Gmail
+// Setup Nodemailer Mail Transporter for Gmail (Forcing IPv4 to prevent ENETUNREACH IPv6 errors)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: (process.env.EMAIL_USER || 'washly2514@gmail.com').trim(),
     pass: (process.env.EMAIL_PASS || '').trim() // Added via .env
-  }
+  },
+  family: 4 // Forces IPv4 DNS resolution
 });
 
 // Helper function to send booking email notification to Admin
