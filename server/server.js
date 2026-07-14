@@ -173,14 +173,14 @@ async function seedDatabaseIfNeeded() {
 
 // Admin Authentication Configuration
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'washly2514@gmail.com';
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'washly2514@gmail.com').trim();
 
 // Setup Nodemailer Mail Transporter for Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'washly2514@gmail.com',
-    pass: process.env.EMAIL_PASS || '' // Added via .env
+    user: (process.env.EMAIL_USER || 'washly2514@gmail.com').trim(),
+    pass: (process.env.EMAIL_PASS || '').trim() // Added via .env
   }
 });
 
