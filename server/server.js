@@ -503,3 +503,12 @@ app.get('/api/stats', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'alive',
+    timestamp: new Date(),
+    databaseConnected: isMongoConnected
+  });
+});
