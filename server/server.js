@@ -55,7 +55,10 @@ const defaultPackages = [
   { name: 'Platinum Elite Pass', price: '5999', category: 'membership', time: 'Monthly', extra: 'All-Inclusive Detailing', features: ['Unlimited Signature washes (Car/Bike)', '1× Detail Deluxe package per month', 'Unlimited GPS geolocated mobile visits', '25% discount on all custom detailing', 'Complimentary replacement car option'], badge: 'Elite', featured: false }
 ];
 
-if (!fs.existsSync(packagesFile)) {
+const shouldSeedLocal = !fs.existsSync(packagesFile) || 
+                         fs.statSync(packagesFile).size === 0 || 
+                         fs.readFileSync(packagesFile, 'utf-8').trim() === '[]';
+if (shouldSeedLocal) {
   fs.writeFileSync(packagesFile, JSON.stringify(defaultPackages, null, 2));
 }
 
@@ -63,7 +66,21 @@ if (!fs.existsSync(packagesFile)) {
 const readLocalJSON = (filePath) => {
   try {
     const data = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(data);
+    let parsed = JSON.parse(data);
+    if (filePath.endsWith('packages.json') && Array.isArray(parsed)) {
+      let changed = false;
+      parsed = parsed.map((p, idx) => {
+        if (!p._id) {
+          p._id = `local-pkg-${idx + 1}`;
+          changed = true;
+        }
+        return p;
+      });
+      if (changed) {
+        fs.writeFileSync(filePath, JSON.stringify(parsed, null, 2));
+      }
+    }
+    return parsed;
   } catch (err) {
     console.error(`Error reading ${filePath}:`, err);
     return [];
