@@ -8,17 +8,16 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 // Dynamic premium images with descriptive design categories
 const interactiveGallery = [
-  { url: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=800&auto=format&fit=crop", label: "PH-Neutral Snow Wash", desc: "Eco-friendly shampoo foam protects paintwork clear-coats." },
-  { url: "https://images.unsplash.com/photo-1552930294-6b595f4c2974?q=80&w=800&auto=format&fit=crop", label: "Professional Machine Buffing", desc: "Removes swirls & oxidation to recover original deep factory gloss." },
-  { url: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop", label: "Deep Steam Extraction", desc: "Hot dry steam sanitization extracts ground-in cabin grime." },
-  { url: "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=800&auto=format&fit=crop", label: "Hand Clay Bar Finishing", desc: "Lifts embedded micro-contaminants for a glass-smooth surface." }
+  { url: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=800&auto=format&fit=crop", label: "Premium Foam Wash", desc: "Thick, safe foam wash that cleans deeply without scratching your car's paint" },
+  { url: "https://images.unsplash.com/photo-1552930294-6b595f4c2974?q=80&w=800&auto=format&fit=crop", label: "Machine Rubbing & Polishing", desc: "Removes minor scratches and dullness to bring back that brand-new showroom shine" },
+  { url: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop", label: "Interior Steam Cleaning", desc: "Deep steam cleaning to kill 99% germs and remove tough stains from seats and carpets" },
+  { url: "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=800&auto=format&fit=crop", label: "Clay Bar Smooth Treatment", desc: "Removes hidden rough dirt and pollution spots to make your car's paint feel super smooth" }
 ];
 
 const stats = [
-  { value: '200+',    label: 'Served Customers' },
+  { value: '200+',    label: 'Foamy Washes' },
   { value: '99.4%',   label: 'Customer Satisfaction' },
-  { value: '1',       label: 'Premium Location' },
-  { value: '12+',     label: 'Years of Excellence' },
+  { value: '2+',     label: 'Years of Washellence' },
 ];
 
 const reasons = [
@@ -117,7 +116,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* ═══════════════════════════════════ HERO */}
+    
       <section className="relative min-h-screen flex items-center overflow-hidden" ref={heroRef}>
         <div className="absolute inset-0 z-0">
           <img
@@ -135,11 +134,11 @@ export default function Home() {
             
             <h1 className="hero-title font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
               The Art of<br />
-              <span className="italic text-yellow-300">Perfect Clean.</span>
+              <span className="italic text-yellow-300">Perfect Wash</span>
             </h1>
 
             <p className="hero-subtitle text-lg text-white/80 max-w-xl leading-relaxed mb-10">
-              Hand-washed to perfection. From express cleans to showroom-grade detailing — for cars, motorcycles, and monthly memberships. Zero scratches guaranteed.
+              Hand Crafted to perfection. From express cleans to showroom grade detailing  for cars, motorcycles, and monthly memberships. Zero scratches guaranteed.
             </p>
 
             <div className="hero-ctas flex flex-wrap gap-4">
@@ -154,14 +153,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="hero-trust-bar flex flex-wrap gap-8 mt-16 pt-8 border-t border-white/20">
-              {['Benz Circle Studio', '200+ Served Customers', '99.4% Satisfaction', 'Open 7 Days'].map(item => (
-                <div key={item} className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-yellow-300" />
-                  <span className="text-white/90 text-sm font-semibold">{item}</span>
-                </div>
-              ))}
-            </div>
+            
           </div>
         </div>
 
@@ -292,7 +284,7 @@ export default function Home() {
               Premium Detailing Execution
             </h2>
             <p className="text-white/80 max-w-2xl mx-auto text-base">
-              Hover over our service spaces to discover how our professionals maintain vehicle clearcoats.
+              Hover over our service spaces to discover how our professionals maintain vehicle clearcoats
             </p>
           </motion.div>
 
@@ -343,17 +335,7 @@ export default function Home() {
                 />
               </div>
               <div className="relative -mt-12 ml-8 z-10 inline-block">
-                <div className="bg-white rounded-2xl shadow-xl px-6 py-4 border border-[#e4e1da]">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#c9922a] text-[#c9922a]" />)}
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-[#1a3c6e]">15,000+ Verified Reviews</div>
-                      <div className="text-xs text-[#8a8378]">Google &amp; Facebook</div>
-                    </div>
-                  </div>
-                </div>
+                
               </div>
             </motion.div>
 

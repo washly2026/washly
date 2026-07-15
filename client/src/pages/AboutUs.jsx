@@ -6,8 +6,7 @@ import { useEffect } from 'react';
 const stats = [
   { value: '200+',    label: 'Served Customers' },
   { value: '99.4%',   label: 'Customer Satisfaction' },
-  { value: '1',       label: 'Premium Location' },
-  { value: '12+',     label: 'Years of Service' },
+  { value: '2+',     label: 'Years of Washellence' },
 ];
 
 const values = [
@@ -52,8 +51,7 @@ export default function AboutUs() {
               <span className="italic text-yellow-300">Every Detail Matters</span>
             </h1>
             <p className="text-white/80 text-base leading-relaxed max-w-lg">
-              Founded in 2014, Washly started with a single van and a commitment to hand-washing every vehicle with complete care. Today we run six premium detailing locations across Vijayawada, AP.
-            </p>
+Founded in 2025, Washly was born from a simple observation: people love a clean car, but they don't have the time to drive to a detailing shop and wait around. To solve this, we decided to bring the car wash directly to you. Starting with just a single van and a commitment to meticulous hand washing, we make premium car care completely effortless by serving you right at your doorstep            </p>
           </div>
         </div>
       </div>
@@ -98,15 +96,7 @@ export default function AboutUs() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="relative -mt-10 ml-6 z-10">
-                <div className="bg-white rounded-2xl shadow-xl border border-[#e4e1da] p-5 inline-block">
-                  <div className="flex gap-0.5 mb-1">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#c9922a] text-[#c9922a]" />)}
-                  </div>
-                  <div className="text-sm font-bold text-[#1a3c6e]">"Best detail in Andhra Pradesh"</div>
-                  <div className="text-xs text-[#8a8378] mt-0.5">15,000+ verified reviews</div>
-                </div>
-              </div>
+              
             </motion.div>
 
             <motion.div
@@ -121,7 +111,7 @@ export default function AboutUs() {
               <div className="space-y-5 text-[#454340] text-base leading-relaxed">
                 <p>We started with a single question: why do car washes leave swirl marks, water spots, and unclean wheel wells? Because they use machinery. We decided to do the opposite.</p>
                 <p>Every Washly team member is personally trained in hand wash techniques, microfibre care, clay bar prep, and premium product application. The same standards apply to every package.</p>
-                <p>In 2024 we expanded our service offering to include premium motorcycle and bike detailing — bringing the same scratch-free, pH-neutral, hand-applied care to two-wheelers.</p>
+                <p>In 2024 we expanded our service offering to include premium motorcycle and bike detailing bringing the same scratch free, pH-neutral, hand applied care to two wheelers.</p>
               </div>
               <div className="flex flex-wrap gap-4 mt-10">
                 <Link to="/book-now" className="btn-primary">Book a Wash Today</Link>

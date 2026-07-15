@@ -156,28 +156,9 @@ export default function ContactUs() {
         </div>
 
         {/* Locations grid */}
-        <div className="mb-5">
-          <div className="section-eyebrow mb-3">Our Locations</div>
-          <h2 className="font-serif text-3xl font-bold text-[#1a3c6e]">Find a Washly Near You</h2>
-          <div className="gold-line mt-4 mb-10"></div>
-        </div>
+        
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {locations.map((loc) => (
-            <div key={loc.name} className="card-premium bg-white p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(201,146,42,0.1)] flex items-center justify-center">
-                  <MapPin className="w-4 h-4 text-[#c9922a]" />
-                </div>
-                <h4 className="font-bold text-[#1a3c6e] text-base">{loc.name}</h4>
-              </div>
-              <p className="text-sm text-[#8a8378] leading-relaxed">{loc.address}</p>
-              <a href={`tel:${loc.phone.replace(/\D/g, '')}`} className="flex items-center gap-2 text-sm font-bold text-[#1a3c6e] hover:text-[#c9922a] transition-colors">
-                <Phone className="w-4 h-4" /> {loc.phone}
-              </a>
-            </div>
-          ))}
-        </div>
+        
       </div>
     </div>
   );

@@ -60,14 +60,7 @@ export default function Footer() {
               <img src="/logo.png" alt="Washly Logo" className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
             </Link>
 
-            {/* Bike Wash Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#c9922a]/50 bg-[#c9922a]/10 w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c9922a] animate-pulse flex-shrink-0" />
-              <span className="text-[#c9922a] text-xs font-bold tracking-widest uppercase">
-                Bike Wash Now Available
-              </span>
-            </div>
-
+            
             {/* Tagline */}
             <p className="text-white/55 text-sm leading-relaxed">
               Vijayawada's premium car &amp; bike wash experience — delivering showroom quality at every location across Andhra Pradesh.
@@ -152,25 +145,7 @@ export default function Footer() {
           </div>
 
           {/* Column 3: Services */}
-          <div className="flex flex-col gap-5">
-            <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-white/90 relative">
-              Our Services
-              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-[#c9922a] rounded-full" />
-            </h3>
-            <ul className="flex flex-col gap-2.5 mt-2">
-              {services.map((service) => (
-                <li key={service}>
-                  <Link
-                    to="/services"
-                    className="flex items-center gap-2 text-sm text-white/55 hover:text-[#c9922a] transition-colors duration-200 group w-fit"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-[#c9922a]/40 group-hover:bg-[#c9922a] transition-colors duration-200 flex-shrink-0" />
-                    {service}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          
 
           {/* Column 4: Locations */}
           <div className="flex flex-col gap-5">

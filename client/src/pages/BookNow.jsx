@@ -315,7 +315,7 @@ export default function BookNow() {
                     <p className="text-[10px] text-[#8a8378] mt-1.5">Used as your loyalty ID — tracks visit history & reward milestones.</p>
                   </div>
                   <div className={isMembership ? 'sm:col-span-2' : ''}>
-                    <label className="label-premium">Email Address</label>
+                    <label className="label-premium">Email Address(optional)</label>
                     <input type="email" required={isMembership} value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="input-premium" placeholder="john@example.com" />
                   </div>
                   {!isMembership && (
