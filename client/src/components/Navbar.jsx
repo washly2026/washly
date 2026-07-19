@@ -15,6 +15,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [offerText, setOfferText] = useState('');
+  const [offerActive, setOfferActive] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,8 +29,9 @@ export default function Navbar() {
       try {
         const res = await fetch(`${API}/api/settings`);
         const data = await res.json();
-        if (data.success && data.settings?.offerText) {
-          setOfferText(data.settings.offerText);
+        if (data.success && data.settings) {
+          setOfferText(data.settings.offerText || '');
+          setOfferActive(data.settings.offerActive !== undefined ? data.settings.offerActive : false);
         }
       } catch (err) {
         console.error('Error fetching settings:', err);
@@ -168,7 +170,7 @@ export default function Navbar() {
       )}
       
       {/* Moving Offer Ticker Bar */}
-      {offerText && (
+      {offerActive && offerText && (
         <Link 
           to="/pricing" 
           className="block w-full bg-[#c9922a] hover:bg-[#e8b04b] text-white py-2.5 text-xs font-bold uppercase tracking-wider overflow-hidden border-t border-[#fafaf8]/10 cursor-pointer select-none transition-colors"

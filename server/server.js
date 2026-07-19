@@ -31,7 +31,7 @@ const settingsFile = path.join(dbFolder, 'settings.json');
 if (!fs.existsSync(bookingsFile)) fs.writeFileSync(bookingsFile, JSON.stringify([]));
 if (!fs.existsSync(customersFile)) fs.writeFileSync(customersFile, JSON.stringify([]));
 if (!fs.existsSync(contactsFile)) fs.writeFileSync(contactsFile, JSON.stringify([]));
-if (!fs.existsSync(settingsFile)) fs.writeFileSync(settingsFile, JSON.stringify({ offerText: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!' }));
+if (!fs.existsSync(settingsFile)) fs.writeFileSync(settingsFile, JSON.stringify({ offerText: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!', offerActive: true }));
 
 // Default packages list in Indian Rupees (₹) for Vijayawada, AP
 const defaultPackages = [
@@ -310,14 +310,20 @@ app.post('/api/admin/login', (req, res) => {
 app.get('/api/settings', async (req, res) => {
   try {
     let offerText = '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!';
+    let offerActive = true;
     if (isMongoConnected) {
       const setting = await Settings.findOne({ key: 'offerText' });
       if (setting) offerText = setting.value;
+      const activeSetting = await Settings.findOne({ key: 'offerActive' });
+      if (activeSetting) offerActive = activeSetting.value === 'true';
     } else {
       const settings = readLocalJSON(settingsFile);
-      if (settings && settings.offerText) offerText = settings.offerText;
+      if (settings) {
+        if (settings.offerText !== undefined) offerText = settings.offerText;
+        if (settings.offerActive !== undefined) offerActive = settings.offerActive;
+      }
     }
-    res.json({ success: true, settings: { offerText } });
+    res.json({ success: true, settings: { offerText, offerActive } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error fetching settings' });
   }
@@ -325,15 +331,27 @@ app.get('/api/settings', async (req, res) => {
 
 app.post('/api/settings', async (req, res) => {
   try {
-    const { offerText } = req.body;
+    const { offerText, offerActive } = req.body;
     if (isMongoConnected) {
-      await Settings.findOneAndUpdate(
-        { key: 'offerText' },
-        { value: offerText },
-        { upsert: true, new: true }
-      );
+      if (offerText !== undefined) {
+        await Settings.findOneAndUpdate(
+          { key: 'offerText' },
+          { value: offerText },
+          { upsert: true, new: true }
+        );
+      }
+      if (offerActive !== undefined) {
+        await Settings.findOneAndUpdate(
+          { key: 'offerActive' },
+          { value: offerActive.toString() },
+          { upsert: true, new: true }
+        );
+      }
     } else {
-      writeLocalJSON(settingsFile, { offerText });
+      const settings = readLocalJSON(settingsFile) || {};
+      if (offerText !== undefined) settings.offerText = offerText;
+      if (offerActive !== undefined) settings.offerActive = offerActive;
+      writeLocalJSON(settingsFile, settings);
     }
     res.json({ success: true, message: 'Settings updated successfully' });
   } catch (error) {

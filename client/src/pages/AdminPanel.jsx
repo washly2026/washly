@@ -49,6 +49,7 @@ export default function AdminPanel() {
   const [isPkgModalOpen, setIsPkgModalOpen] = useState(false);
   const [pkgForm, setPkgForm] = useState({ name: '', price: '', originalPrice: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
   const [offerSettingText, setOfferSettingText] = useState('');
+  const [offerSettingActive, setOfferSettingActive] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState('');
   
@@ -70,7 +71,10 @@ export default function AdminPanel() {
       if (c.success) setCustomers(c.customers);
       if (p.success) setPackages(p.packages);
       if (m.success) setContacts(m.contacts);
-      if (s.success && s.settings?.offerText) setOfferSettingText(s.settings.offerText);
+      if (s.success && s.settings) {
+        setOfferSettingText(s.settings.offerText || '');
+        setOfferSettingActive(s.settings.offerActive !== undefined ? s.settings.offerActive : false);
+      }
     } catch {
       setServerError('Cannot reach server at port 5001. Ensure your backend is running.');
     } finally {
@@ -183,11 +187,11 @@ export default function AdminPanel() {
       const res = await fetch(`${API}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerText: offerSettingText })
+        body: JSON.stringify({ offerText: offerSettingText, offerActive: offerSettingActive })
       });
       const data = await res.json();
       if (data.success) {
-        setSettingsMessage('Offer ticker text updated successfully!');
+        setSettingsMessage('Offer ticker updated successfully!');
       } else {
         setSettingsMessage('Failed to update offer ticker.');
       }
@@ -787,6 +791,19 @@ export default function AdminPanel() {
                 <p className="text-xs text-[#8a8378] mt-1.5 leading-relaxed">
                   Tip: Use emojis like ✨, 🚨, or 🔥 to make the text stand out. This text scrolls automatically from right to left.
                 </p>
+              </div>
+
+              <div className="flex items-center gap-3 py-2">
+                <input 
+                  type="checkbox" 
+                  id="offer-active-check" 
+                  checked={offerSettingActive} 
+                  onChange={e => setOfferSettingActive(e.target.checked)} 
+                  className="w-4 h-4 rounded text-[#1a3c6e] focus:ring-[#1a3c6e] cursor-pointer" 
+                />
+                <label htmlFor="offer-active-check" className="text-sm font-bold text-[#1a3c6e] cursor-pointer select-none">
+                  Display Offer Ticker on Website
+                </label>
               </div>
               
               <button 
