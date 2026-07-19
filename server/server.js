@@ -25,34 +25,36 @@ const bookingsFile = path.join(dbFolder, 'bookings.json');
 const customersFile = path.join(dbFolder, 'customers.json');
 const packagesFile = path.join(dbFolder, 'packages.json');
 const contactsFile = path.join(dbFolder, 'contacts.json');
+const settingsFile = path.join(dbFolder, 'settings.json');
 
 // Initialize local JSON files if they don't exist
 if (!fs.existsSync(bookingsFile)) fs.writeFileSync(bookingsFile, JSON.stringify([]));
 if (!fs.existsSync(customersFile)) fs.writeFileSync(customersFile, JSON.stringify([]));
 if (!fs.existsSync(contactsFile)) fs.writeFileSync(contactsFile, JSON.stringify([]));
+if (!fs.existsSync(settingsFile)) fs.writeFileSync(settingsFile, JSON.stringify({ offerText: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!' }));
 
 // Default packages list in Indian Rupees (₹) for Vijayawada, AP
 const defaultPackages = [
   // Cars
-  { name: 'Express Wash', price: '499', category: 'car', time: '20–30 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', features: ['Premium foam hand wash', 'Wheels & rims cleaned', 'Microfiber spotless dry', 'Exterior glass cleared', 'Running board wipe-down'], badge: 'Quick', featured: false },
-  { name: 'Signature Wash', price: '899', category: 'car', time: '35–45 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', featured: true, features: ['Express Wash included', 'Full interior vacuuming', 'Dashboard & console detailed', 'Windows cleaned inside & out', 'Premium tyre dressing & shine', 'Air freshener spray'], badge: 'Popular', featured: true },
-  { name: 'Top Seller Wash', price: '1299', category: 'car', time: '50–60 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', features: ['Signature Wash included', 'Bug, sand & tar removal', 'Door panels deep cleaned', 'High-gloss spray wax shield', 'Boot/trunk vacuumed'], badge: 'Best Value', featured: false },
-  { name: 'Perfect Polish', price: '2499', category: 'car', time: '90–120 min', extra: '+₹300 SUV/Wagon | +₹500 Luxury', features: ['Top Seller Wash included', 'Full clay bar treatment', 'Tar & tree sap extraction', 'Premium machine buff-polish', 'Long-lasting paint sealant guard'], badge: 'Premium', featured: false },
-  { name: 'Mini Detail', price: '3999', category: 'car', time: '90–120 min', extra: '+₹300 SUV/Wagon | +₹500 Luxury', features: ['Signature Wash included', 'Engine bay dry-cleaning', 'Exterior trim restoration', 'Chrome metal components polished', 'Leather seat clean & cream care'], badge: 'Detail', featured: false },
-  { name: 'Interior Detail', price: '5499', category: 'car', time: '3–4 hours', extra: '+₹400 SUV/Wagon | +₹600 Luxury', features: ['Signature Wash included', 'Steam clean seats, roof & carpets', 'Hot-water extraction shampooing', 'Odor neutralization treatment', 'Dashboard UV protectant finish'], badge: 'Interior', featured: false },
-  { name: 'Paint Restoring', price: '7999', category: 'car', time: '3–4 hours', extra: '+₹500 SUV/Wagon | +₹800 Luxury', features: ['Top Seller Wash included', 'Multi-stage paint correction', 'Swirl mark & minor scratch reduction', 'High-performance polymer sealant', 'Deep mirror-glaze finish'], badge: 'Restore', featured: false },
-  { name: 'Detail Deluxe', price: '9999', category: 'car', time: '4–5 hours', extra: '+₹500 SUV/Wagon | +₹800 Luxury', features: ['Perfect Polish included', 'Complete interior steam cleaning', 'Wheel hub detailing & polish', 'Full undercarriage washing', 'Premium Carnauba wax shield'], badge: 'Deluxe', featured: false },
-  { name: 'Showroom Detail', price: '14999', category: 'car', time: 'Full Day', extra: '+₹800 SUV/Wagon | +₹1200 Luxury', features: ['Paint Restoring included', 'Detail Deluxe included', '1-Year Ceramic Coating protection', 'Glass water-repellent treatment', 'Premium alloy wheel sealant guard'], badge: 'Elite', featured: false },
+  { name: 'Express Wash', price: '499', originalPrice: '699', category: 'car', time: '20–30 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', features: ['Premium foam hand wash', 'Wheels & rims cleaned', 'Microfiber spotless dry', 'Exterior glass cleared', 'Running board wipe-down'], badge: 'Quick', featured: false },
+  { name: 'Signature Wash', price: '899', originalPrice: '1299', category: 'car', time: '35–45 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', featured: true, features: ['Express Wash included', 'Full interior vacuuming', 'Dashboard & console detailed', 'Windows cleaned inside & out', 'Premium tyre dressing & shine', 'Air freshener spray'], badge: 'Popular', featured: true },
+  { name: 'Top Seller Wash', price: '1299', originalPrice: '1799', category: 'car', time: '50–60 min', extra: '+₹200 SUV/Wagon | +₹300 Luxury', features: ['Signature Wash included', 'Bug, sand & tar removal', 'Door panels deep cleaned', 'High-gloss spray wax shield', 'Boot/trunk vacuumed'], badge: 'Best Value', featured: false },
+  { name: 'Perfect Polish', price: '2499', originalPrice: '3499', category: 'car', time: '90–120 min', extra: '+₹300 SUV/Wagon | +₹500 Luxury', features: ['Top Seller Wash included', 'Full clay bar treatment', 'Tar & tree sap extraction', 'Premium machine buff-polish', 'Long-lasting paint sealant guard'], badge: 'Premium', featured: false },
+  { name: 'Mini Detail', price: '3999', originalPrice: '4999', category: 'car', time: '90–120 min', extra: '+₹300 SUV/Wagon | +₹500 Luxury', features: ['Signature Wash included', 'Engine bay dry-cleaning', 'Exterior trim restoration', 'Chrome metal components polished', 'Leather seat clean & cream care'], badge: 'Detail', featured: false },
+  { name: 'Interior Detail', price: '5499', originalPrice: '6999', category: 'car', time: '3–4 hours', extra: '+₹400 SUV/Wagon | +₹600 Luxury', features: ['Signature Wash included', 'Steam clean seats, roof & carpets', 'Hot-water extraction shampooing', 'Odor neutralization treatment', 'Dashboard UV protectant finish'], badge: 'Interior', featured: false },
+  { name: 'Paint Restoring', price: '7999', originalPrice: '9999', category: 'car', time: '3–4 hours', extra: '+₹500 SUV/Wagon | +₹800 Luxury', features: ['Top Seller Wash included', 'Multi-stage paint correction', 'Swirl mark & minor scratch reduction', 'High-performance polymer sealant', 'Deep mirror-glaze finish'], badge: 'Restore', featured: false },
+  { name: 'Detail Deluxe', price: '9999', originalPrice: '12999', category: 'car', time: '4–5 hours', extra: '+₹500 SUV/Wagon | +₹800 Luxury', features: ['Perfect Polish included', 'Complete interior steam cleaning', 'Wheel hub detailing & polish', 'Full undercarriage washing', 'Premium Carnauba wax shield'], badge: 'Deluxe', featured: false },
+  { name: 'Showroom Detail', price: '14999', originalPrice: '19999', category: 'car', time: 'Full Day', extra: '+₹800 SUV/Wagon | +₹1200 Luxury', features: ['Paint Restoring included', 'Detail Deluxe included', '1-Year Ceramic Coating protection', 'Glass water-repellent treatment', 'Premium alloy wheel sealant guard'], badge: 'Elite', featured: false },
   
   // Bikes
-  { name: 'Express Bike Wash', price: '299', category: 'bike', time: '15–20 min', extra: 'All standard motorcycles', features: ['pH-neutral foam pre-soak', 'Hand wash & precision rinse', 'Blower forced-air dry (spot-free)', 'Chain lubrication & dressing', 'Tyre wall detailing'], badge: 'Quick', featured: false },
-  { name: 'Signature Bike Wash', price: '599', category: 'bike', time: '35–45 min', extra: '+₹100 Cruiser / Superbike', featured: true, features: ['Express Bike Wash included', 'Bug, tar & asphalt removal', 'Chrome & exhaust pipe polish', 'Chain deep clean & re-lube', 'Hand spray wax coating', 'Cockpit & visor polished'], badge: 'Popular', featured: true },
-  { name: 'Detail Deluxe Bike Wash', price: '1499', category: 'bike', time: '90–120 min', extra: '+₹250 Cruiser / Superbike', features: ['Signature Bike Wash included', 'Engine bay & crankcase clean', 'Scratch reduction buffing', 'Ultra paint sealant guard', 'Leather seat clean & condition', 'Spoke & hub detail polish'], badge: 'Premium', featured: false },
+  { name: 'Express Bike Wash', price: '299', originalPrice: '399', category: 'bike', time: '15–20 min', extra: 'All standard motorcycles', features: ['pH-neutral foam pre-soak', 'Hand wash & precision rinse', 'Blower forced-air dry (spot-free)', 'Chain lubrication & dressing', 'Tyre wall detailing'], badge: 'Quick', featured: false },
+  { name: 'Signature Bike Wash', price: '599', originalPrice: '799', category: 'bike', time: '35–45 min', extra: '+₹100 Cruiser / Superbike', featured: true, features: ['Express Bike Wash included', 'Bug, tar & asphalt removal', 'Chrome & exhaust pipe polish', 'Chain deep clean & re-lube', 'Hand spray wax coating', 'Cockpit & visor polished'], badge: 'Popular', featured: true },
+  { name: 'Detail Deluxe Bike Wash', price: '1499', originalPrice: '1999', category: 'bike', time: '90–120 min', extra: '+₹250 Cruiser / Superbike', features: ['Signature Bike Wash included', 'Engine bay & crankcase clean', 'Scratch reduction buffing', 'Ultra paint sealant guard', 'Leather seat clean & condition', 'Spoke & hub detail polish'], badge: 'Premium', featured: false },
 
   // Memberships
-  { name: 'Silver Pass', price: '1999', category: 'membership', time: 'Monthly', extra: 'Priority Scheduling', features: ['2× Signature Car or Bike washes per month', 'Priority booking queue', 'Free wheel detailing on every visit', '10% off any detailing packages'], badge: 'Starter', featured: false },
-  { name: 'Gold VIP Pass', price: '3499', category: 'membership', time: 'Monthly', extra: 'Best Value Membership', features: ['Unlimited Express washes', '2× Signature washes per month', '1× Interior steam sanitize per year', '15% discount on detailing packages', 'Dedicated VIP account manager'], badge: 'Most Popular', featured: true },
-  { name: 'Platinum Elite Pass', price: '5999', category: 'membership', time: 'Monthly', extra: 'All-Inclusive Detailing', features: ['Unlimited Signature washes (Car/Bike)', '1× Detail Deluxe package per month', 'Unlimited GPS geolocated mobile visits', '25% discount on all custom detailing', 'Complimentary replacement car option'], badge: 'Elite', featured: false }
+  { name: 'Silver Pass', price: '1999', originalPrice: '2499', category: 'membership', time: 'Monthly', extra: 'Priority Scheduling', features: ['2× Signature Car or Bike washes per month', 'Priority booking queue', 'Free wheel detailing on every visit', '10% off any detailing packages'], badge: 'Starter', featured: false },
+  { name: 'Gold VIP Pass', price: '3499', originalPrice: '4499', category: 'membership', time: 'Monthly', extra: 'Best Value Membership', features: ['Unlimited Express washes', '2× Signature washes per month', '1× Interior steam sanitize per year', '15% discount on detailing packages', 'Dedicated VIP account manager'], badge: 'Most Popular', featured: true },
+  { name: 'Platinum Elite Pass', price: '5999', originalPrice: '7999', category: 'membership', time: 'Monthly', extra: 'All-Inclusive Detailing', features: ['Unlimited Signature washes (Car/Bike)', '1× Detail Deluxe package per month', 'Unlimited GPS geolocated mobile visits', '25% discount on all custom detailing', 'Complimentary replacement car option'], badge: 'Elite', featured: false }
 ];
 
 const shouldSeedLocal = !fs.existsSync(packagesFile) || 
@@ -137,6 +139,7 @@ const BookingSchema = new mongoose.Schema({
 const PackageSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: String, required: true },
+  originalPrice: { type: String, default: '' },
   category: { type: String, required: true }, // 'car', 'bike', 'membership'
   time: { type: String, default: '' },
   extra: { type: String, default: '' },
@@ -144,6 +147,11 @@ const PackageSchema = new mongoose.Schema({
   badge: { type: String, default: '' },
   featured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
+});
+
+const SettingsSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  value: { type: String, required: true }
 });
 
 const ContactSchema = new mongoose.Schema({
@@ -157,17 +165,25 @@ const ContactSchema = new mongoose.Schema({
 const Customer = mongoose.model('Customer', CustomerSchema);
 const Booking = mongoose.model('Booking', BookingSchema);
 const Package = mongoose.model('Package', PackageSchema);
+const Settings = mongoose.model('Settings', SettingsSchema);
 const Contact = mongoose.model('Contact', ContactSchema);
 
-// Seed MongoDB with default packages if empty
+// Seed MongoDB with default packages and settings if empty
 async function seedDatabaseIfNeeded() {
   try {
     // If currency changed, re-sync packages to India rates
     await Package.deleteMany({});
     await Package.insertMany(defaultPackages);
     console.log('Seeded dynamic Indian Rupee packages to MongoDB.');
+
+    // Seed default settings
+    const offerSetting = await Settings.findOne({ key: 'offerText' });
+    if (!offerSetting) {
+      await new Settings({ key: 'offerText', value: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!' }).save();
+      console.log('Seeded default offerText setting to MongoDB.');
+    }
   } catch (err) {
-    console.error('Error seeding packages:', err);
+    console.error('Error seeding packages/settings:', err);
   }
 }
 
@@ -287,6 +303,41 @@ app.post('/api/admin/login', (req, res) => {
     res.json({ success: true, token: 'mock-admin-token' });
   } else {
     res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
+
+// Settings routes
+app.get('/api/settings', async (req, res) => {
+  try {
+    let offerText = '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!';
+    if (isMongoConnected) {
+      const setting = await Settings.findOne({ key: 'offerText' });
+      if (setting) offerText = setting.value;
+    } else {
+      const settings = readLocalJSON(settingsFile);
+      if (settings && settings.offerText) offerText = settings.offerText;
+    }
+    res.json({ success: true, settings: { offerText } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error fetching settings' });
+  }
+});
+
+app.post('/api/settings', async (req, res) => {
+  try {
+    const { offerText } = req.body;
+    if (isMongoConnected) {
+      await Settings.findOneAndUpdate(
+        { key: 'offerText' },
+        { value: offerText },
+        { upsert: true, new: true }
+      );
+    } else {
+      writeLocalJSON(settingsFile, { offerText });
+    }
+    res.json({ success: true, message: 'Settings updated successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error updating settings' });
   }
 });
 
@@ -464,16 +515,16 @@ app.get('/api/packages', async (req, res) => {
 
 app.post('/api/packages', async (req, res) => {
   try {
-    const { name, price, category, time, extra, features, badge, featured } = req.body;
+    const { name, price, originalPrice, category, time, extra, features, badge, featured } = req.body;
     if (isMongoConnected) {
-      const newPkg = new Package({ name, price, category, time, extra, features, badge, featured });
+      const newPkg = new Package({ name, price, originalPrice: originalPrice || '', category, time, extra, features, badge, featured });
       await newPkg.save();
       res.status(201).json({ success: true, package: newPkg });
     } else {
       const packages = readLocalJSON(packagesFile);
       const newPkg = {
         _id: 'p_' + Math.random().toString(36).substr(2, 9),
-        name, price, category, time, extra, features, badge, featured, createdAt: new Date()
+        name, price, originalPrice: originalPrice || '', category, time, extra, features, badge, featured, createdAt: new Date()
       };
       packages.push(newPkg);
       writeLocalJSON(packagesFile, packages);
@@ -487,15 +538,15 @@ app.post('/api/packages', async (req, res) => {
 app.put('/api/packages/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, category, time, extra, features, badge, featured } = req.body;
+    const { name, price, originalPrice, category, time, extra, features, badge, featured } = req.body;
     if (isMongoConnected) {
-      const updated = await Package.findByIdAndUpdate(id, { name, price, category, time, extra, features, badge, featured }, { new: true });
+      const updated = await Package.findByIdAndUpdate(id, { name, price, originalPrice: originalPrice || '', category, time, extra, features, badge, featured }, { new: true });
       res.json({ success: true, package: updated });
     } else {
       const packages = readLocalJSON(packagesFile);
       const index = packages.findIndex(p => p._id === id);
       if (index === -1) return res.status(404).json({ success: false, message: 'Not found' });
-      packages[index] = { ...packages[index], name, price, category, time, extra, features, badge, featured };
+      packages[index] = { ...packages[index], name, price, originalPrice: originalPrice || '', category, time, extra, features, badge, featured };
       writeLocalJSON(packagesFile, packages);
       res.json({ success: true, package: packages[index] });
     }

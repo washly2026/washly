@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
-import { Car, Bike, Sparkles, Star, CheckCircle, ChevronRight, ArrowRight, Shield, Clock, Navigation, Loader2 } from 'lucide-react';
+import { Car, Bike, Sparkles, Star, ChevronRight, ArrowRight, Shield, Clock, Navigation, Loader2, Phone } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
@@ -42,6 +42,15 @@ export default function Home() {
       document.head.appendChild(metaDesc);
     }
     metaDesc.content = "Vijayawada's premium scratch-free hand car wash and motorcycle detailing service. VIP memberships, 1-click GPS location lock, and email confirmations.";
+
+    // Set canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = "https://washly.services/";
 
     // Inject JSON-LD local business schema
     let schemaScript = document.getElementById('seo-home-schema');
@@ -148,9 +157,31 @@ export default function Home() {
               <Link to="/book-now?type=bike" className="btn-gold shadow-xl cursor-pointer">
                 <Bike className="w-5 h-5" /> Book Bike Wash
               </Link>
-              <Link to="/services" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg border-2 border-white/40 text-white text-sm font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 cursor-pointer">
-                View All Services
+              <Link to="/pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg border-2 border-white/40 text-white text-sm font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 cursor-pointer">
+                View Pricing
               </Link>
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10 text-white">
+              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c9922a] text-white shadow-md">
+                  <Phone size={18} />
+                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-[#e8b04b] font-bold">Direct Support</p>
+                  <a href="tel:1300927459" className="text-lg font-black hover:text-[#e8b04b] transition-colors">+91 8074004714</a>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2557a7] text-white shadow-md">
+                  <Phone size={18} />
+                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-blue-300 font-bold">Direct Support</p>
+                  <a href="tel:919876543210" className="text-lg font-black hover:text-blue-300 transition-colors">+91 9491990163</a>
+                </div>
+              </div>
             </div>
 
             
@@ -229,9 +260,16 @@ export default function Home() {
                       <span className={`tag-pill ${
                         pkg.category === 'membership' ? 'gold' : pkg.category === 'bike' ? 'gold' : 'blue'
                       }`}>{pkg.badge || 'Popular'}</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-bold text-[#c9922a]">₹</span>
-                        <span className="text-3xl font-black text-[#1a3c6e]" style={{ fontFamily: 'var(--font-display)' }}>{pkg.price}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {pkg.originalPrice && (
+                          <span className="text-xs font-bold line-through text-red-500/70 mr-0.5">
+                            ₹{pkg.originalPrice}
+                          </span>
+                        )}
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-sm font-bold text-[#c9922a]">₹</span>
+                          <span className="text-3xl font-black text-[#1a3c6e]" style={{ fontFamily: 'var(--font-display)' }}>{pkg.price}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mb-3">
@@ -261,7 +299,7 @@ export default function Home() {
           )}
 
           <div className="text-center mt-12">
-            <Link to="/services" className="btn-ghost cursor-pointer">
+            <Link to="/pricing" className="btn-ghost cursor-pointer">
               Explore All Detailing &amp; Memberships <ChevronRight className="w-4 h-4" />
             </Link>
           </div>

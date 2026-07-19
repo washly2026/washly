@@ -1,0 +1,244 @@
+[
+  {
+    "name": "Express Wash",
+    "price": "499",
+    "category": "car",
+    "time": "20–30 min",
+    "extra": "+₹200 SUV/Wagon | +₹300 Luxury",
+    "features": [
+      "Premium foam hand wash",
+      "Wheels & rims cleaned",
+      "Microfiber spotless dry",
+      "Exterior glass cleared",
+      "Running board wipe-down"
+    ],
+    "badge": "Quick",
+    "featured": false
+  },
+  {
+    "name": "Signature Wash",
+    "price": "899",
+    "category": "car",
+    "time": "35–45 min",
+    "extra": "+₹200 SUV/Wagon | +₹300 Luxury",
+    "featured": true,
+    "features": [
+      "Express Wash included",
+      "Full interior vacuuming",
+      "Dashboard & console detailed",
+      "Windows cleaned inside & out",
+      "Premium tyre dressing & shine",
+      "Air freshener spray"
+    ],
+    "badge": "Popular"
+  },
+  {
+    "name": "Top Seller Wash",
+    "price": "1299",
+    "category": "car",
+    "time": "50–60 min",
+    "extra": "+₹200 SUV/Wagon | +₹300 Luxury",
+    "features": [
+      "Signature Wash included",
+      "Bug, sand & tar removal",
+      "Door panels deep cleaned",
+      "High-gloss spray wax shield",
+      "Boot/trunk vacuumed"
+    ],
+    "badge": "Best Value",
+    "featured": false
+  },
+  {
+    "name": "Perfect Polish",
+    "price": "2499",
+    "category": "car",
+    "time": "90–120 min",
+    "extra": "+₹300 SUV/Wagon | +₹500 Luxury",
+    "features": [
+      "Top Seller Wash included",
+      "Full clay bar treatment",
+      "Tar & tree sap extraction",
+      "Premium machine buff-polish",
+      "Long-lasting paint sealant guard"
+    ],
+    "badge": "Premium",
+    "featured": false
+  },
+  {
+    "name": "Mini Detail",
+    "price": "3999",
+    "category": "car",
+    "time": "90–120 min",
+    "extra": "+₹300 SUV/Wagon | +₹500 Luxury",
+    "features": [
+      "Signature Wash included",
+      "Engine bay dry-cleaning",
+      "Exterior trim restoration",
+      "Chrome metal components polished",
+      "Leather seat clean & cream care"
+    ],
+    "badge": "Detail",
+    "featured": false
+  },
+  {
+    "name": "Interior Detail",
+    "price": "5499",
+    "category": "car",
+    "time": "3–4 hours",
+    "extra": "+₹400 SUV/Wagon | +₹600 Luxury",
+    "features": [
+      "Signature Wash included",
+      "Steam clean seats, roof & carpets",
+      "Hot-water extraction shampooing",
+      "Odor neutralization treatment",
+      "Dashboard UV protectant finish"
+    ],
+    "badge": "Interior",
+    "featured": false
+  },
+  {
+    "name": "Paint Restoring",
+    "price": "7999",
+    "category": "car",
+    "time": "3–4 hours",
+    "extra": "+₹500 SUV/Wagon | +₹800 Luxury",
+    "features": [
+      "Top Seller Wash included",
+      "Multi-stage paint correction",
+      "Swirl mark & minor scratch reduction",
+      "High-performance polymer sealant",
+      "Deep mirror-glaze finish"
+    ],
+    "badge": "Restore",
+    "featured": false
+  },
+  {
+    "name": "Detail Deluxe",
+    "price": "9999",
+    "category": "car",
+    "time": "4–5 hours",
+    "extra": "+₹500 SUV/Wagon | +₹800 Luxury",
+    "features": [
+      "Perfect Polish included",
+      "Complete interior steam cleaning",
+      "Wheel hub detailing & polish",
+      "Full undercarriage washing",
+      "Premium Carnauba wax shield"
+    ],
+    "badge": "Deluxe",
+    "featured": false
+  },
+  {
+    "name": "Showroom Detail",
+    "price": "14999",
+    "category": "car",
+    "time": "Full Day",
+    "extra": "+₹800 SUV/Wagon | +₹1200 Luxury",
+    "features": [
+      "Paint Restoring included",
+      "Detail Deluxe included",
+      "1-Year Ceramic Coating protection",
+      "Glass water-repellent treatment",
+      "Premium alloy wheel sealant guard"
+    ],
+    "badge": "Elite",
+    "featured": false
+  },
+  {
+    "name": "Express Bike Wash",
+    "price": "299",
+    "category": "bike",
+    "time": "15–20 min",
+    "extra": "All standard motorcycles",
+    "features": [
+      "pH-neutral foam pre-soak",
+      "Hand wash & precision rinse",
+      "Blower forced-air dry (spot-free)",
+      "Chain lubrication & dressing",
+      "Tyre wall detailing"
+    ],
+    "badge": "Quick",
+    "featured": false
+  },
+  {
+    "name": "Signature Bike Wash",
+    "price": "599",
+    "category": "bike",
+    "time": "35–45 min",
+    "extra": "+₹100 Cruiser / Superbike",
+    "featured": true,
+    "features": [
+      "Express Bike Wash included",
+      "Bug, tar & asphalt removal",
+      "Chrome & exhaust pipe polish",
+      "Chain deep clean & re-lube",
+      "Hand spray wax coating",
+      "Cockpit & visor polished"
+    ],
+    "badge": "Popular"
+  },
+  {
+    "name": "Detail Deluxe Bike Wash",
+    "price": "1499",
+    "category": "bike",
+    "time": "90–120 min",
+    "extra": "+₹250 Cruiser / Superbike",
+    "features": [
+      "Signature Bike Wash included",
+      "Engine bay & crankcase clean",
+      "Scratch reduction buffing",
+      "Ultra paint sealant guard",
+      "Leather seat clean & condition",
+      "Spoke & hub detail polish"
+    ],
+    "badge": "Premium",
+    "featured": false
+  },
+  {
+    "name": "Silver Pass",
+    "price": "1999",
+    "category": "membership",
+    "time": "Monthly",
+    "extra": "Priority Scheduling",
+    "features": [
+      "2× Signature Car or Bike washes per month",
+      "Priority booking queue",
+      "Free wheel detailing on every visit",
+      "10% off any detailing packages"
+    ],
+    "badge": "Starter",
+    "featured": false
+  },
+  {
+    "name": "Gold VIP Pass",
+    "price": "3499",
+    "category": "membership",
+    "time": "Monthly",
+    "extra": "Best Value Membership",
+    "features": [
+      "Unlimited Express washes",
+      "2× Signature washes per month",
+      "1× Interior steam sanitize per year",
+      "15% discount on detailing packages",
+      "Dedicated VIP account manager"
+    ],
+    "badge": "Most Popular",
+    "featured": true
+  },
+  {
+    "name": "Platinum Elite Pass",
+    "price": "5999",
+    "category": "membership",
+    "time": "Monthly",
+    "extra": "All-Inclusive Detailing",
+    "features": [
+      "Unlimited Signature washes (Car/Bike)",
+      "1× Detail Deluxe package per month",
+      "Unlimited GPS geolocated mobile visits",
+      "25% discount on all custom detailing",
+      "Complimentary replacement car option"
+    ],
+    "badge": "Elite",
+    "featured": false
+  }
+]

@@ -47,25 +47,30 @@ export default function AdminPanel() {
   const [selectedBooking, setSelected] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
   const [isPkgModalOpen, setIsPkgModalOpen] = useState(false);
-  const [pkgForm, setPkgForm] = useState({ name: '', price: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
+  const [pkgForm, setPkgForm] = useState({ name: '', price: '', originalPrice: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
+  const [offerSettingText, setOfferSettingText] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsMessage, setSettingsMessage] = useState('');
   
   const [serverError, setServerError] = useState('');
 
   const fetchAll = async () => {
     setLoading(true); setServerError('');
     try {
-      const [bRes, cRes, pRes, mRes] = await Promise.all([
+      const [bRes, cRes, pRes, mRes, sRes] = await Promise.all([
         fetch(`${API}/api/bookings`),
         fetch(`${API}/api/customers`),
         fetch(`${API}/api/packages`),
-        fetch(`${API}/api/contacts`)
+        fetch(`${API}/api/contacts`),
+        fetch(`${API}/api/settings`)
       ]);
-      if (!bRes.ok || !cRes.ok || !pRes.ok || !mRes.ok) throw new Error('Server error');
-      const [b, c, p, m] = await Promise.all([bRes.json(), cRes.json(), pRes.json(), mRes.json()]);
+      if (!bRes.ok || !cRes.ok || !pRes.ok || !mRes.ok || !sRes.ok) throw new Error('Server error');
+      const [b, c, p, m, s] = await Promise.all([bRes.json(), cRes.json(), pRes.json(), mRes.json(), sRes.json()]);
       if (b.success) setBookings(b.bookings);
       if (c.success) setCustomers(c.customers);
       if (p.success) setPackages(p.packages);
       if (m.success) setContacts(m.contacts);
+      if (s.success && s.settings?.offerText) setOfferSettingText(s.settings.offerText);
     } catch {
       setServerError('Cannot reach server at port 5001. Ensure your backend is running.');
     } finally {
@@ -148,7 +153,7 @@ export default function AdminPanel() {
       const data = await res.json();
       if (data.success) {
         setIsPkgModalOpen(false);
-        setPkgForm({ name: '', price: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
+        setPkgForm({ name: '', price: '', originalPrice: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
         setEditingPackage(null);
         fetchAll();
       }
@@ -170,9 +175,33 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    setSettingsMessage('');
+    try {
+      const res = await fetch(`${API}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerText: offerSettingText })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSettingsMessage('Offer ticker text updated successfully!');
+      } else {
+        setSettingsMessage('Failed to update offer ticker.');
+      }
+    } catch (err) {
+      console.error(err);
+      setSettingsMessage('Error connecting to backend.');
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const openAddPkg = () => {
     setEditingPackage(null);
-    setPkgForm({ name: '', price: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
+    setPkgForm({ name: '', price: '', originalPrice: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
     setIsPkgModalOpen(true);
   };
 
@@ -181,6 +210,7 @@ export default function AdminPanel() {
     setPkgForm({
       name: pkg.name,
       price: pkg.price,
+      originalPrice: pkg.originalPrice || '',
       category: pkg.category,
       time: pkg.time || '',
       extra: pkg.extra || '',
@@ -363,6 +393,7 @@ export default function AdminPanel() {
             { id: 'bookings',  label: `Bookings (${bookings.length})`, icon: BookOpen },
             { id: 'customers', label: `Customers (${customers.length})`, icon: Users },
             { id: 'packages',  label: `Pricing CRUD (${packages.length})`, icon: Settings },
+            { id: 'settings',  label: `Offer Ticker`, icon: RefreshCw },
             { id: 'messages',  label: `Messages (${contacts.length})`, icon: Mail },
             { id: 'analytics', label: 'Revenue Analysis', icon: TrendingUp }
           ].map(tab => (
@@ -565,7 +596,12 @@ export default function AdminPanel() {
                         pkg.category === 'bike' ? 'gold' : pkg.category === 'membership' ? 'green' : 'blue'
                       }`}>{pkg.category}</span>
                       <div className="text-right">
-                        <span className="text-2xl font-black text-[#1a3c6e]">${pkg.price}</span>
+                        {pkg.originalPrice && (
+                          <span className="text-xs font-bold line-through text-red-500/70 mr-1 block">
+                            ₹{pkg.originalPrice}
+                          </span>
+                        )}
+                        <span className="text-2xl font-black text-[#1a3c6e]">₹{pkg.price}</span>
                         {pkg.time && <span className="text-xs text-[#8a8378] block">/ {pkg.time}</span>}
                       </div>
                     </div>
@@ -607,7 +643,7 @@ export default function AdminPanel() {
               <div className="bg-white p-6 rounded-2xl border border-[#e4e1da] shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#8a8378] mb-2">Completed Bookings Revenue</p>
                 <div className="text-4xl font-black text-[#1a3c6e]" style={{ fontFamily: 'var(--font-display)' }}>
-                  ${analytics.totalCalculatedRevenue.toLocaleString()}
+                  ₹{analytics.totalCalculatedRevenue.toLocaleString()}
                 </div>
                 <div className="text-xs text-green-600 font-bold flex items-center gap-1 mt-2">
                   <TrendingUp className="w-3.5 h-3.5" /> Derived from {analytics.completedCount} completions
@@ -617,7 +653,7 @@ export default function AdminPanel() {
               <div className="bg-white p-6 rounded-2xl border border-[#e4e1da] shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#8a8378] mb-2">Average Ticket Value</p>
                 <div className="text-4xl font-black text-indigo-600" style={{ fontFamily: 'var(--font-display)' }}>
-                  ${analytics.completedCount > 0 ? Math.round(analytics.totalCalculatedRevenue / analytics.completedCount) : 0}
+                  ₹{analytics.completedCount > 0 ? Math.round(analytics.totalCalculatedRevenue / analytics.completedCount) : 0}
                 </div>
                 <p className="text-xs text-[#8a8378] mt-2">Estimated average spend per vehicle wash</p>
               </div>
@@ -651,7 +687,7 @@ export default function AdminPanel() {
                       <div key={c.category}>
                         <div className="flex justify-between text-xs font-bold text-[#454340] mb-2">
                           <span>{c.category}</span>
-                          <span>${c.value.toLocaleString()} ({percentage}%)</span>
+                          <span>₹{c.value.toLocaleString()} ({percentage}%)</span>
                         </div>
                         <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
                           <div className={`h-full ${c.color}`} style={{ width: `${percentage}%` }}></div>
@@ -721,6 +757,48 @@ export default function AdminPanel() {
             )}
           </div>
         )}
+        {/* ═══════════════════════════════════ TAB 6: SETTINGS (OFFER TICKER) */}
+        {activeTab === 'settings' && (
+          <div className="bg-white rounded-2xl border border-[#e4e1da] shadow-sm p-6 max-w-xl">
+            <h3 className="font-serif text-2xl font-bold text-[#1a3c6e] mb-2">Offer Ticker Settings</h3>
+            <p className="text-sm text-[#8a8378] mb-6">Configure the moving notification/offer bar displayed globally below the website navigation header.</p>
+            
+            <form onSubmit={handleSaveSettings} className="space-y-4">
+              {settingsMessage && (
+                <div className={`p-4 rounded-xl text-sm font-semibold border ${
+                  settingsMessage.includes('successfully') 
+                    ? 'bg-green-50 border-green-200 text-green-700' 
+                    : 'bg-red-50 border-red-200 text-red-700'
+                }`}>
+                  {settingsMessage}
+                </div>
+              )}
+              
+              <div>
+                <label className="label-premium">Offer Bar Text</label>
+                <textarea
+                  rows={4}
+                  required
+                  value={offerSettingText}
+                  onChange={e => setOfferSettingText(e.target.value)}
+                  className="input-premium"
+                  placeholder="e.g. Special Opening Offer: Get up to 30% off on all Detailing services this weekend! Book now!"
+                />
+                <p className="text-xs text-[#8a8378] mt-1.5 leading-relaxed">
+                  Tip: Use emojis like ✨, 🚨, or 🔥 to make the text stand out. This text scrolls automatically from right to left.
+                </p>
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={savingSettings}
+                className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {savingSettings ? 'Saving...' : 'Update Ticker text'}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
 
       {/* ─── MODAL: ADD/EDIT PACKAGE ───────────────────────────────────────── */}
@@ -744,13 +822,18 @@ export default function AdminPanel() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-premium">Price (Rupees / ₹)</label>
+                  <label className="label-premium">Offer Price (₹)</label>
                   <input required type="number" value={pkgForm.price} onChange={e => setPkgForm({...pkgForm, price: e.target.value})} className="input-premium" placeholder="e.g. 899" />
                 </div>
                 <div>
-                  <label className="label-premium">Time Estimate</label>
-                  <input type="text" value={pkgForm.time} onChange={e => setPkgForm({...pkgForm, time: e.target.value})} className="input-premium" placeholder="e.g. 35–45 min" />
+                  <label className="label-premium">MRP / Original (₹)</label>
+                  <input type="number" value={pkgForm.originalPrice} onChange={e => setPkgForm({...pkgForm, originalPrice: e.target.value})} className="input-premium" placeholder="e.g. 1299 (Optional)" />
                 </div>
+              </div>
+
+              <div>
+                <label className="label-premium">Time Estimate</label>
+                <input type="text" value={pkgForm.time} onChange={e => setPkgForm({...pkgForm, time: e.target.value})} className="input-premium" placeholder="e.g. 35–45 min" />
               </div>
 
               <div>
@@ -764,7 +847,7 @@ export default function AdminPanel() {
 
               <div>
                 <label className="label-premium">Surcharge Note / Extra</label>
-                <input type="text" value={pkgForm.extra} onChange={e => setPkgForm({...pkgForm, extra: e.target.value})} className="input-premium" placeholder="e.g. +$10 SUV | Heavy Harleys" />
+                <input type="text" value={pkgForm.extra} onChange={e => setPkgForm({...pkgForm, extra: e.target.value})} className="input-premium" placeholder="e.g. +₹200 SUV | Heavy Harleys" />
               </div>
 
               <div>

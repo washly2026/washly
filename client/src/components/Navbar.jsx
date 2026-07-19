@@ -1,24 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Bike, CalendarRange, Phone, Clock } from 'lucide-react';
+import { Menu, X, CalendarRange, Phone, Clock } from 'lucide-react';
 
 const navLinks = [
   { name: 'Home', path: '/' },
-  { name: 'Services', path: '/services' },
   { name: 'Pricing', path: '/pricing' },
   { name: 'About Us', path: '/about-us' },
   { name: 'Contact Us', path: '/contact-us' },
 ];
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [offerText, setOfferText] = useState('');
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch(`${API}/api/settings`);
+        const data = await res.json();
+        if (data.success && data.settings?.offerText) {
+          setOfferText(data.settings.offerText);
+        }
+      } catch (err) {
+        console.error('Error fetching settings:', err);
+      }
+    }
+    fetchSettings();
   }, []);
 
   // Close mobile menu on route change
@@ -91,16 +108,6 @@ export default function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-3">
             <Link
-              to="/services?tab=bikes"
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
-                scrolled
-                  ? 'border-[#c9922a]/40 bg-[#fef3da] text-[#c9922a] hover:bg-[#c9922a] hover:text-white'
-                  : 'border-[#c9922a]/50 bg-[#c9922a]/10 text-[#e8b04b] hover:bg-[#c9922a] hover:text-white'
-              }`}
-            >
-              <Bike className="w-3.5 h-3.5" /> Bike Wash
-            </Link>
-            <Link
               to="/book-now"
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1a3c6e] hover:bg-[#2557a7] text-white text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
             >
@@ -152,18 +159,26 @@ export default function Navbar() {
             <div className="h-px bg-[#e4e1da] my-3" />
 
             <div className="flex flex-col gap-2.5 px-4 pt-2">
-              <Link
-                to="/services?tab=bikes"
-                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-[#c9922a]/45 bg-[#fef3da] text-[#c9922a] font-bold text-xs uppercase tracking-wide cursor-pointer"
-              >
-                <Bike className="w-4 h-4" /> Bike Wash Options
-              </Link>
               <div className="flex items-center justify-center gap-4 text-xs text-neutral-500 font-bold uppercase tracking-wider py-2">
                 <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[#c9922a]" /> 1300 WASHLY</span>
               </div>
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Moving Offer Ticker Bar */}
+      {offerText && (
+        <Link 
+          to="/pricing" 
+          className="block w-full bg-[#c9922a] hover:bg-[#e8b04b] text-white py-2.5 text-xs font-bold uppercase tracking-wider overflow-hidden border-t border-[#fafaf8]/10 cursor-pointer select-none transition-colors"
+        >
+          <div className="marquee-container">
+            <span className="marquee-content">
+              {offerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {offerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {offerText}
+            </span>
+          </div>
+        </Link>
       )}
     </header>
   );

@@ -30,6 +30,15 @@ export default function Pricing() {
     }
     metaDesc.content = "Compare hand car wash, premium motorcycle detail packages, and monthly VIP passes. Clean pricing with zero hidden surcharges at Washly.";
 
+    // Set canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = "https://washly.services/pricing";
+
     let schemaScript = document.getElementById('seo-pricing-schema');
     if (!schemaScript) {
       schemaScript = document.createElement('script');
@@ -173,12 +182,19 @@ export default function Pricing() {
                       <div className="text-xs text-[#8a8378] font-bold uppercase tracking-wider mb-1">
                         {isMembership ? 'Monthly VIP Pass' : 'Hand detailing from'}
                       </div>
-                      <div className="flex items-baseline gap-1">
-                        <span className={`text-base font-bold ${isMembership ? 'text-indigo-600' : 'text-[#c9922a]'}`}>₹</span>
-                        <span className={`text-4.5xl font-black leading-none ${isMembership ? 'text-indigo-700' : 'text-[#1a3c6e]'}`} style={{ fontFamily: 'var(--font-display)' }}>
-                          {item.price}
-                        </span>
-                        {item.time && <span className="text-xs font-semibold text-[#8a8378] ml-1">/ {item.time}</span>}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {item.originalPrice && (
+                          <span className="text-sm font-bold line-through text-red-500/70 mr-1">
+                            ₹{item.originalPrice}
+                          </span>
+                        )}
+                        <div className="flex items-baseline gap-1">
+                          <span className={`text-base font-bold ${isMembership ? 'text-indigo-600' : 'text-[#c9922a]'}`}>₹</span>
+                          <span className={`text-4.5xl font-black leading-none ${isMembership ? 'text-indigo-700' : 'text-[#1a3c6e]'}`} style={{ fontFamily: 'var(--font-display)' }}>
+                            {item.price}
+                          </span>
+                          {item.time && <span className="text-xs font-semibold text-[#8a8378] ml-1">/ {item.time}</span>}
+                        </div>
                       </div>
                     </div>
 

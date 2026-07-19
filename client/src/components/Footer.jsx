@@ -21,24 +21,13 @@ const TwitterIcon = () => (
 
 const quickLinks = [
   { label: 'Home', to: '/' },
-  { label: 'Services', to: '/services' },
   { label: 'Pricing', to: '/pricing' },
   { label: 'About Us', to: '/about-us' },
   { label: 'Contact Us', to: '/contact-us' },
   { label: 'Book Now', to: '/book-now' },
 ];
 
-const services = [
-  'Express Wash',
-  'Signature Wash',
-  'Top Seller',
-  'Perfect Polish',
-  'Mini Detail',
-  'Interior Detail',
-  'Paint Restoring',
-  'Express Bike Wash',
-  'Signature Bike Wash',
-];
+// Services list removed from display, hence unused
 
 const locations = [
   { name: 'Benz Circle Studio, Vijayawada', phone: '+91 866 257 1111' },

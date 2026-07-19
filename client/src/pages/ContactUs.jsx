@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Clock, CheckCircle } from 'lucide-react';
-
-const locations = [
-  { name: 'Benz Circle Studio', phone: '+91 866 257 1111', address: 'Shop 12, Ground Floor, Benz Circle, Vijayawada, AP 520010' },
-];
+import { Mail, Phone, Clock, CheckCircle } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
@@ -22,6 +18,15 @@ export default function ContactUs() {
       document.head.appendChild(metaDesc);
     }
     metaDesc.content = "Locate or contact our premium hand car wash centers in Vijayawada, Andhra Pradesh, India. Benz Circle, Moghalrajpuram, and VIP Kanuru locations listed.";
+
+    // Set canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = "https://washly.services/contact-us";
   }, []);
 
   const handleSubmit = async (e) => {

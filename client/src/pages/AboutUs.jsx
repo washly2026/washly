@@ -27,6 +27,15 @@ export default function AboutUs() {
       document.head.appendChild(metaDesc);
     }
     metaDesc.content = "Founded in 2014, Washly has been delivering premium scratch-free detailing. Read about our eco-water reclamation & professional standards.";
+
+    // Set canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = "https://washly.services/about-us";
   }, []);
 
   return (
@@ -115,7 +124,7 @@ Founded in 2025, Washly was born from a simple observation: people love a clean 
               </div>
               <div className="flex flex-wrap gap-4 mt-10">
                 <Link to="/book-now" className="btn-primary">Book a Wash Today</Link>
-                <Link to="/services" className="btn-ghost">View All Services <ChevronRight className="w-4 h-4" /></Link>
+                <Link to="/pricing" className="btn-ghost">View Pricing <ChevronRight className="w-4 h-4" /></Link>
               </div>
             </motion.div>
           </div>

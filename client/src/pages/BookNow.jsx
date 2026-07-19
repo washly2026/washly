@@ -34,6 +34,15 @@ export default function BookNow() {
     }
     metaDesc.content = "Secure your premium hand car wash, bike detail, or monthly VIP pass with Washly. Features 1-click GPS lock for mobile services across Vijayawada, AP.";
 
+    // Set canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = "https://washly.services/book-now";
+
     // Inject structured JSON-LD schema
     let schemaScript = document.getElementById('seo-booking-schema');
     if (!schemaScript) {
