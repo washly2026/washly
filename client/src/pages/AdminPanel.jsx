@@ -56,7 +56,7 @@ export default function AdminPanel() {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
   const [uploadingOfferImg, setUploadingOfferImg] = useState(false);
-  const [offerForm, setOfferForm] = useState({ title: '', subtitle: '', discountBadge: '', code: '', imageUrl: '', targetLink: '/book-now', active: true });
+  const [offerForm, setOfferForm] = useState({ title: '', subtitle: '', discountBadge: '', imageUrl: '', targetLink: '/book-now', active: true });
 
   const [serverError, setServerError] = useState('');
 
@@ -889,7 +889,7 @@ export default function AdminPanel() {
                 <button
                   onClick={() => {
                     setEditingOffer(null);
-                    setOfferForm({ title: '', subtitle: '', discountBadge: '', code: '', imageUrl: '', targetLink: '/book-now', active: true });
+                    setOfferForm({ title: '', subtitle: '', discountBadge: '', imageUrl: '', targetLink: '/book-now', active: true });
                     setIsOfferModalOpen(true);
                   }}
                   className="btn-gold flex items-center gap-2 shadow-md cursor-pointer !py-3 !px-5"
@@ -923,12 +923,6 @@ export default function AdminPanel() {
                       {offer.discountBadge && (
                         <span className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded shadow">
                           {offer.discountBadge}
-                        </span>
-                      )}
-
-                      {offer.code && (
-                        <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-yellow-300 font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-white/20">
-                          CODE: {offer.code}
                         </span>
                       )}
 
@@ -966,7 +960,6 @@ export default function AdminPanel() {
                               title: offer.title || '',
                               subtitle: offer.subtitle || '',
                               discountBadge: offer.discountBadge || '',
-                              code: offer.code || '',
                               imageUrl: offer.imageUrl || '',
                               targetLink: offer.targetLink || '/book-now',
                               active: offer.active !== undefined ? offer.active : true
@@ -1193,27 +1186,15 @@ export default function AdminPanel() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="label-premium">Discount Badge / Tag</label>
-                  <input 
-                    type="text" 
-                    value={offerForm.discountBadge} 
-                    onChange={e => setOfferForm({...offerForm, discountBadge: e.target.value})} 
-                    className="input-premium" 
-                    placeholder="e.g. FLAT 30% OFF" 
-                  />
-                </div>
-                <div>
-                  <label className="label-premium">Promo Code</label>
-                  <input 
-                    type="text" 
-                    value={offerForm.code} 
-                    onChange={e => setOfferForm({...offerForm, code: e.target.value})} 
-                    className="input-premium" 
-                    placeholder="e.g. WASH30" 
-                  />
-                </div>
+              <div>
+                <label className="label-premium">Discount Badge / Tag</label>
+                <input 
+                  type="text" 
+                  value={offerForm.discountBadge} 
+                  onChange={e => setOfferForm({...offerForm, discountBadge: e.target.value})} 
+                  className="input-premium" 
+                  placeholder="e.g. FLAT 30% OFF or SPECIAL DEAL" 
+                />
               </div>
 
               {/* Cloudinary Image Upload & Link Section */}

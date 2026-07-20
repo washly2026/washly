@@ -183,88 +183,83 @@ export default function Home() {
 
             {/* Netflix-Style Offers Carousel (Between buttons and phone numbers) */}
             {showOfferSection && offers && offers.filter(o => o.active !== false).length > 0 && (
-              <div className="my-5 w-full max-w-full lg:max-w-3xl bg-gradient-to-r from-black/70 via-[#0f2444]/80 to-black/70 backdrop-blur-md border border-amber-400/30 rounded-2xl p-3.5 sm:p-4 shadow-2xl overflow-hidden transition-all">
+              <div className="my-4 w-full max-w-full lg:max-w-3xl bg-gradient-to-r from-[#0f2444]/95 via-[#1a3c6e]/90 to-[#0f2444]/95 backdrop-blur-xl border border-[#c9922a]/30 rounded-2xl p-3 sm:p-4 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.6)] overflow-hidden transition-all">
+                {/* Section Header */}
                 <div className="flex items-center justify-between mb-2.5 px-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-gradient-to-r from-red-600 to-amber-600 text-white text-[10px] font-black tracking-widest uppercase shadow-md flex items-center gap-1 animate-pulse">
-                      <Sparkles className="w-3 h-3 text-yellow-300" /> EXCLUSIVE OFFERS
+                    <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-yellow-100" /> SPECIAL DEALS
                     </span>
-                    <span className="text-white/80 text-xs font-bold hidden sm:inline-block">Special Deals &amp; Discounts</span>
+                    <span className="text-white/80 text-xs font-semibold hidden sm:inline-block">Exclusive Wash &amp; Detail Packages</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-white/80">
+                  <div className="flex items-center gap-1 text-white/80">
                     <button 
                       onClick={() => scrollOffers('left')} 
                       aria-label="Previous Offer" 
-                      className="p-1 rounded-full bg-white/10 hover:bg-amber-500 hover:text-white transition cursor-pointer border border-white/10"
+                      className="p-1 rounded-full bg-white/10 hover:bg-[#c9922a] hover:text-white transition cursor-pointer border border-white/10"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
                     <button 
                       onClick={() => scrollOffers('right')} 
                       aria-label="Next Offer" 
-                      className="p-1 rounded-full bg-white/10 hover:bg-amber-500 hover:text-white transition cursor-pointer border border-white/10"
+                      className="p-1 rounded-full bg-white/10 hover:bg-[#c9922a] hover:text-white transition cursor-pointer border border-white/10"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Netflix Cards Horizontal Scroll */}
+                {/* Horizontal Cards Slider */}
                 <div 
                   ref={offersScrollRef}
-                  className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 pt-1 no-scrollbar"
+                  className="flex gap-2.5 sm:gap-3 overflow-x-auto snap-x snap-mandatory pb-1 pt-0.5 no-scrollbar"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {offers.filter(o => o.active !== false).map((offer, idx) => (
                     <div 
                       key={offer._id || idx}
-                      className="snap-start flex-none w-[220px] sm:w-[260px] md:w-[280px] group relative rounded-xl overflow-hidden border border-white/15 bg-slate-900/90 backdrop-blur-md shadow-xl transition-all duration-300 hover:scale-[1.03] hover:border-amber-400/80 cursor-pointer flex flex-col justify-between"
+                      className="snap-start flex-none w-[165px] sm:w-[195px] md:w-[210px] group relative rounded-xl overflow-hidden border border-white/15 bg-[#0a182e]/90 backdrop-blur-md shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-[#c9922a]/70 cursor-pointer flex flex-col justify-between"
                     >
-                      {/* Image Container */}
-                      <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-black">
+                      {/* Card Poster Image */}
+                      <div className="relative h-20 sm:h-24 w-full overflow-hidden bg-black/40">
                         <img 
                           src={offer.imageUrl} 
                           alt={offer.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a182e] via-[#0a182e]/20 to-transparent" />
                         
-                        {/* Badges */}
+                        {/* Discount Badge */}
                         {offer.discountBadge && (
-                          <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-black text-[9px] tracking-wider px-2 py-0.5 rounded shadow border border-yellow-300/30 uppercase">
+                          <span className="absolute top-1.5 left-1.5 bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider px-2 py-0.5 rounded shadow border border-yellow-200/20 uppercase">
                             {offer.discountBadge}
-                          </span>
-                        )}
-
-                        {offer.code && (
-                          <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm border border-white/20 text-yellow-300 font-mono font-bold text-[9px] px-1.5 py-0.5 rounded">
-                            CODE: {offer.code}
                           </span>
                         )}
                       </div>
 
                       {/* Details */}
-                      <div className="p-3 flex flex-col justify-between flex-grow">
+                      <div className="p-2.5 flex flex-col justify-between flex-grow">
                         <div>
-                          <h4 className="text-white font-bold text-xs sm:text-sm line-clamp-1 group-hover:text-yellow-300 transition-colors">
+                          <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-yellow-300 transition-colors">
                             {offer.title}
                           </h4>
                           {offer.subtitle && (
-                            <p className="text-white/70 text-[11px] mt-1 line-clamp-2 leading-tight">
+                            <p className="text-white/60 text-[10px] mt-0.5 line-clamp-2 leading-tight">
                               {offer.subtitle}
                             </p>
                           )}
                         </div>
 
-                        <div className="mt-3 flex items-center justify-between pt-2 border-t border-white/10">
-                          <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1 uppercase tracking-wider">
-                            <Sparkles className="w-3 h-3" /> Offer
+                        <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-white/10">
+                          <span className="text-[9px] font-bold text-[#e8b04b] flex items-center gap-0.5 uppercase tracking-wider">
+                            <Sparkles className="w-2.5 h-2.5" /> Promo
                           </span>
                           <Link
                             to={offer.targetLink || '/book-now'}
-                            className="px-2.5 py-1 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[10px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-1"
+                            className="px-2 py-0.5 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[9px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-0.5"
                           >
-                            Claim <ChevronRight className="w-3 h-3" />
+                            Claim <ChevronRight className="w-2.5 h-2.5" />
                           </Link>
                         </div>
                       </div>

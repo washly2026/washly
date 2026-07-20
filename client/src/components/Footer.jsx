@@ -30,7 +30,7 @@ const quickLinks = [
 // Services list removed from display, hence unused
 
 const locations = [
-  { name: 'Benz Circle Studio, Vijayawada', phone: '+91 866 257 1111' },
+  { name: 'Benz Circle Studio, Vijayawada', phone: '+91 8074004714' },
 ];
 
 export default function Footer() {
@@ -101,7 +101,7 @@ export default function Footer() {
                 className="flex items-center gap-2.5 text-sm text-white/60 hover:text-[#c9922a] transition-colors duration-200 group w-fit"
               >
                 <Mail size={14} className="text-[#c9922a] flex-shrink-0" />
-                <span className="font-medium">hello@washly.com.au</span>
+                <span className="font-medium">washly2514@gmail.com </span>
               </a>
               <div className="flex items-start gap-2.5 text-sm text-white/60">
                 <Clock size={14} className="text-[#c9922a] flex-shrink-0 mt-0.5" />

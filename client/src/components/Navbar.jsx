@@ -45,7 +45,7 @@ export default function Navbar() {
             </span>
             <span className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-[#c9922a]" />
-              1300 WASHLY
+              +91 8074004714  WASHLY
             </span>
           </div>
           <div className="flex items-center gap-2">
