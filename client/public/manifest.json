@@ -1,0 +1,16 @@
+{
+  "short_name": "Washly",
+  "name": "Washly Car & Bike Wash",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f2444",
+  "theme_color": "#1a3c6e",
+  "display": "standalone",
+  "orientation": "portrait"
+}

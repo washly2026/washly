@@ -201,7 +201,6 @@ export default function Home() {
                       <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1.5">
                         <Sparkles className="w-3 h-3 text-yellow-100 animate-pulse" /> SPECIAL OFFERS
                       </span>
-                      <span className="text-white/80 text-xs font-semibold hidden sm:inline-block">Auto-playing Deals &amp; Discounts</span>
                     </div>
                     <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold hidden sm:block">Hover to pause</span>
                   </div>
@@ -245,9 +244,7 @@ export default function Home() {
                             </div>
 
                             <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-white/10">
-                              <span className="text-[9px] font-bold text-[#e8b04b] flex items-center gap-0.5 uppercase tracking-wider">
-                                <Sparkles className="w-2.5 h-2.5 text-[#c9922a]" /> Promo
-                              </span>
+                              
                               <Link
                                 to={offer.targetLink || '/book-now'}
                                 className="px-2 py-0.5 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[9px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-0.5"

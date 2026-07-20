@@ -94,7 +94,7 @@ export default function Footer() {
                 className="flex items-center gap-2.5 text-sm text-white/60 hover:text-[#c9922a] transition-colors duration-200 group w-fit"
               >
                 <Phone size={14} className="text-[#c9922a] flex-shrink-0" />
-                <span className="font-medium">1300 WASHLY</span>
+                <span className="font-medium"> +91 8074004714  WASHLY</span>
               </a>
               <a
                 href="mailto:hello@washly.com.au"
