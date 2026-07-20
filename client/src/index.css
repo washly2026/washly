@@ -541,22 +541,31 @@ body {
 .bike-accent { color: var(--color-gold); }
 .bike-accent-bg { background: var(--color-gold-pale); }
 
-/* Offer Bar Marquee Animation */
-.marquee-container {
+/* Offers Infinite Carousel Marquee */
+.offers-marquee-wrapper {
   overflow: hidden;
-  white-space: nowrap;
-  box-sizing: border-box;
   width: 100%;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.offers-marquee-container {
   display: flex;
+  gap: 0.75rem;
+  width: max-content;
+  animation: offers-marquee-slide 28s linear infinite;
 }
 
-.marquee-content {
-  display: inline-block;
-  padding-left: 100%;
-  animation: marquee-scroll 25s linear infinite;
+.offers-marquee-container:hover {
+  animation-play-state: paused;
 }
 
-@keyframes marquee-scroll {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-100%, 0, 0); }
+@keyframes offers-marquee-slide {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

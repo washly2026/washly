@@ -168,106 +168,97 @@ export default function Home() {
               Hand Crafted to perfection. From express cleans to showroom grade detailing for cars, motorcycles, and monthly memberships. Zero scratches guaranteed.
             </p>
 
-            {/* Compact CTA Buttons */}
-            <div className="hero-ctas flex flex-wrap gap-2.5 sm:gap-3 mb-6">
-              <Link to="/book-now" className="btn-primary !px-4 !py-2.5 !text-xs sm:!px-5 sm:!py-3 shadow-xl cursor-pointer">
-                <Car className="w-4 h-4" /> Book Car Wash
+            {/* Compact Mobile-Friendly Horizontal CTA Buttons */}
+            <div className="hero-ctas flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 mb-4 w-full max-w-xl">
+              <Link to="/book-now" className="btn-primary !px-3 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer">
+                <Car className="w-3.5 h-3.5" /> Book Car Wash
               </Link>
-              <Link to="/book-now?type=bike" className="btn-gold !px-4 !py-2.5 !text-xs sm:!px-5 sm:!py-3 shadow-xl cursor-pointer">
-                <Bike className="w-4 h-4" /> Book Bike Wash
+              <Link to="/book-now?type=bike" className="btn-gold !px-3 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer">
+                <Bike className="w-3.5 h-3.5" /> Book Bike Wash
               </Link>
-              <Link to="/pricing" className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg border border-white/40 text-white text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 cursor-pointer">
+              <Link to="/pricing" className="inline-flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/40 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 flex-1 sm:flex-none cursor-pointer">
                 View Pricing
               </Link>
             </div>
 
-            {/* Netflix-Style Offers Carousel (Between buttons and phone numbers) */}
-            {showOfferSection && offers && offers.filter(o => o.active !== false).length > 0 && (
-              <div className="my-4 w-full max-w-full lg:max-w-3xl bg-gradient-to-r from-[#0f2444]/95 via-[#1a3c6e]/90 to-[#0f2444]/95 backdrop-blur-xl border border-[#c9922a]/30 rounded-2xl p-3 sm:p-4 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.6)] overflow-hidden transition-all">
-                {/* Section Header */}
-                <div className="flex items-center justify-between mb-2.5 px-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-yellow-100" /> SPECIAL DEALS
-                    </span>
-                    <span className="text-white/80 text-xs font-semibold hidden sm:inline-block">Exclusive Wash &amp; Detail Packages</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-white/80">
-                    <button 
-                      onClick={() => scrollOffers('left')} 
-                      aria-label="Previous Offer" 
-                      className="p-1 rounded-full bg-white/10 hover:bg-[#c9922a] hover:text-white transition cursor-pointer border border-white/10"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                    </button>
-                    <button 
-                      onClick={() => scrollOffers('right')} 
-                      aria-label="Next Offer" 
-                      className="p-1 rounded-full bg-white/10 hover:bg-[#c9922a] hover:text-white transition cursor-pointer border border-white/10"
-                    >
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+            {/* Floating Infinite Auto-Scrolling Offers Section (No dark outer box) */}
+            {showOfferSection && offers && offers.filter(o => o.active !== false).length > 0 && (() => {
+              const activeOffers = offers.filter(o => o.active !== false);
+              // Duplicate activeOffers array for 100% gapless continuous marquee looping
+              const marqueeOffers = activeOffers.length < 5 
+                ? [...activeOffers, ...activeOffers, ...activeOffers, ...activeOffers]
+                : [...activeOffers, ...activeOffers];
 
-                {/* Horizontal Cards Slider */}
-                <div 
-                  ref={offersScrollRef}
-                  className="flex gap-2.5 sm:gap-3 overflow-x-auto snap-x snap-mandatory pb-1 pt-0.5 no-scrollbar"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {offers.filter(o => o.active !== false).map((offer, idx) => (
-                    <div 
-                      key={offer._id || idx}
-                      className="snap-start flex-none w-[165px] sm:w-[195px] md:w-[210px] group relative rounded-xl overflow-hidden border border-white/15 bg-[#0a182e]/90 backdrop-blur-md shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-[#c9922a]/70 cursor-pointer flex flex-col justify-between"
-                    >
-                      {/* Card Poster Image */}
-                      <div className="relative h-20 sm:h-24 w-full overflow-hidden bg-black/40">
-                        <img 
-                          src={offer.imageUrl} 
-                          alt={offer.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a182e] via-[#0a182e]/20 to-transparent" />
-                        
-                        {/* Discount Badge */}
-                        {offer.discountBadge && (
-                          <span className="absolute top-1.5 left-1.5 bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider px-2 py-0.5 rounded shadow border border-yellow-200/20 uppercase">
-                            {offer.discountBadge}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Details */}
-                      <div className="p-2.5 flex flex-col justify-between flex-grow">
-                        <div>
-                          <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-yellow-300 transition-colors">
-                            {offer.title}
-                          </h4>
-                          {offer.subtitle && (
-                            <p className="text-white/60 text-[10px] mt-0.5 line-clamp-2 leading-tight">
-                              {offer.subtitle}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-white/10">
-                          <span className="text-[9px] font-bold text-[#e8b04b] flex items-center gap-0.5 uppercase tracking-wider">
-                            <Sparkles className="w-2.5 h-2.5" /> Promo
-                          </span>
-                          <Link
-                            to={offer.targetLink || '/book-now'}
-                            className="px-2 py-0.5 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[9px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-0.5"
-                          >
-                            Claim <ChevronRight className="w-2.5 h-2.5" />
-                          </Link>
-                        </div>
-                      </div>
+              return (
+                <div className="my-5 w-full max-w-full lg:max-w-4xl">
+                  {/* Floating Header */}
+                  <div className="flex items-center justify-between mb-2.5 px-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3 text-yellow-100 animate-pulse" /> SPECIAL OFFERS
+                      </span>
+                      <span className="text-white/80 text-xs font-semibold hidden sm:inline-block">Auto-playing Deals &amp; Discounts</span>
                     </div>
-                  ))}
+                    <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold hidden sm:block">Hover to pause</span>
+                  </div>
+
+                  {/* Floating Seamless Infinite Marquee Track */}
+                  <div className="offers-marquee-wrapper py-1">
+                    <div className="offers-marquee-container">
+                      {marqueeOffers.map((offer, idx) => (
+                        <div 
+                          key={`${offer._id || 'off'}-${idx}`}
+                          className="flex-none w-[160px] sm:w-[190px] md:w-[205px] group relative rounded-xl overflow-hidden border border-white/20 bg-[#0a182e]/85 backdrop-blur-lg shadow-[0_8px_30px_rgb(0,0,0,0.5)] transition-all duration-300 hover:scale-[1.04] hover:border-[#c9922a] hover:shadow-[0_12px_36px_rgba(201,146,42,0.35)] cursor-pointer flex flex-col justify-between"
+                        >
+                          {/* Card Poster Image */}
+                          <div className="relative h-20 sm:h-22 w-full overflow-hidden bg-black/40">
+                            <img 
+                              src={offer.imageUrl} 
+                              alt={offer.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a182e] via-[#0a182e]/30 to-transparent" />
+                            
+                            {/* Discount Badge */}
+                            {offer.discountBadge && (
+                              <span className="absolute top-1.5 left-1.5 bg-gradient-to-r from-[#c9922a] to-[#e8b04b] text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider px-2 py-0.5 rounded shadow border border-yellow-200/20 uppercase">
+                                {offer.discountBadge}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Details */}
+                          <div className="p-2.5 flex flex-col justify-between flex-grow">
+                            <div>
+                              <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-yellow-300 transition-colors">
+                                {offer.title}
+                              </h4>
+                              {offer.subtitle && (
+                                <p className="text-white/65 text-[10px] mt-0.5 line-clamp-2 leading-tight">
+                                  {offer.subtitle}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-white/10">
+                              <span className="text-[9px] font-bold text-[#e8b04b] flex items-center gap-0.5 uppercase tracking-wider">
+                                <Sparkles className="w-2.5 h-2.5 text-[#c9922a]" /> Promo
+                              </span>
+                              <Link
+                                to={offer.targetLink || '/book-now'}
+                                className="px-2 py-0.5 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[9px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-0.5"
+                              >
+                                Claim <ChevronRight className="w-2.5 h-2.5" />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Direct Support Phone Numbers */}
             <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 text-white">
