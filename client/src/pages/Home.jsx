@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
-import { Car, Bike, Sparkles, Star, ChevronRight, ArrowRight, Shield, Clock, Navigation, Loader2, Phone } from 'lucide-react';
+import { Car, Bike, Sparkles, Star, ChevronRight, ChevronLeft, ArrowRight, Shield, Clock, Navigation, Loader2, Phone } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
@@ -29,7 +29,10 @@ const reasons = [
 
 export default function Home() {
   const heroRef = useRef(null);
+  const offersScrollRef = useRef(null);
   const [packages, setPackages] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [showOfferSection, setShowOfferSection] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // SEO Optimization & Schema Markup
@@ -91,24 +94,39 @@ export default function Home() {
     };
   }, []);
 
-  // Fetch dynamic packages
+  // Fetch dynamic packages and offers
   useEffect(() => {
-    async function loadPackages() {
+    async function loadData() {
       try {
-        const res = await fetch(`${API}/api/packages`);
-        const data = await res.json();
-        if (data.success) {
-          // Select only a few featured ones to showcase on home page
-          setPackages(data.packages.filter(p => p.featured || p.badge === 'Elite').slice(0, 3));
+        const [pkgRes, offRes] = await Promise.all([
+          fetch(`${API}/api/packages`),
+          fetch(`${API}/api/offers`)
+        ]);
+        const pkgData = await pkgRes.json();
+        const offData = await offRes.json();
+
+        if (pkgData.success) {
+          setPackages(pkgData.packages.filter(p => p.featured || p.badge === 'Elite').slice(0, 3));
+        }
+        if (offData.success) {
+          setOffers(offData.offers || []);
+          setShowOfferSection(offData.showOfferSection !== undefined ? offData.showOfferSection : true);
         }
       } catch (err) {
-        console.error('Error fetching dynamic packages:', err);
+        console.error('Error fetching dynamic data:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadPackages();
+    loadData();
   }, []);
+
+  const scrollOffers = (direction) => {
+    if (offersScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -280 : 280;
+      offersScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   // GSAP hero animation
   useEffect(() => {
@@ -138,53 +156,147 @@ export default function Home() {
           <div className="absolute inset-0 stripe-overlay opacity-30" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 pt-36 pb-24">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 pt-32 pb-20">
           <div className="max-w-3xl">
             
-            <h1 className="hero-title font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+            <h1 className="hero-title font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
               The Art of<br />
               <span className="italic text-yellow-300">Perfect Wash</span>
             </h1>
 
-            <p className="hero-subtitle text-lg text-white/80 max-w-xl leading-relaxed mb-10">
-              Hand Crafted to perfection. From express cleans to showroom grade detailing  for cars, motorcycles, and monthly memberships. Zero scratches guaranteed.
+            <p className="hero-subtitle text-base sm:text-lg text-white/80 max-w-xl leading-relaxed mb-6">
+              Hand Crafted to perfection. From express cleans to showroom grade detailing for cars, motorcycles, and monthly memberships. Zero scratches guaranteed.
             </p>
 
-            <div className="hero-ctas flex flex-wrap gap-4">
-              <Link to="/book-now" className="btn-primary shadow-xl cursor-pointer">
-                <Car className="w-5 h-5" /> Book Car Wash
+            {/* Compact CTA Buttons */}
+            <div className="hero-ctas flex flex-wrap gap-2.5 sm:gap-3 mb-6">
+              <Link to="/book-now" className="btn-primary !px-4 !py-2.5 !text-xs sm:!px-5 sm:!py-3 shadow-xl cursor-pointer">
+                <Car className="w-4 h-4" /> Book Car Wash
               </Link>
-              <Link to="/book-now?type=bike" className="btn-gold shadow-xl cursor-pointer">
-                <Bike className="w-5 h-5" /> Book Bike Wash
+              <Link to="/book-now?type=bike" className="btn-gold !px-4 !py-2.5 !text-xs sm:!px-5 sm:!py-3 shadow-xl cursor-pointer">
+                <Bike className="w-4 h-4" /> Book Bike Wash
               </Link>
-              <Link to="/pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg border-2 border-white/40 text-white text-sm font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 cursor-pointer">
+              <Link to="/pricing" className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg border border-white/40 text-white text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 cursor-pointer">
                 View Pricing
               </Link>
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10 text-white">
-              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c9922a] text-white shadow-md">
-                  <Phone size={18} />
+            {/* Netflix-Style Offers Carousel (Between buttons and phone numbers) */}
+            {showOfferSection && offers && offers.filter(o => o.active !== false).length > 0 && (
+              <div className="my-5 w-full max-w-full lg:max-w-3xl bg-gradient-to-r from-black/70 via-[#0f2444]/80 to-black/70 backdrop-blur-md border border-amber-400/30 rounded-2xl p-3.5 sm:p-4 shadow-2xl overflow-hidden transition-all">
+                <div className="flex items-center justify-between mb-2.5 px-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-gradient-to-r from-red-600 to-amber-600 text-white text-[10px] font-black tracking-widest uppercase shadow-md flex items-center gap-1 animate-pulse">
+                      <Sparkles className="w-3 h-3 text-yellow-300" /> EXCLUSIVE OFFERS
+                    </span>
+                    <span className="text-white/80 text-xs font-bold hidden sm:inline-block">Special Deals &amp; Discounts</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-white/80">
+                    <button 
+                      onClick={() => scrollOffers('left')} 
+                      aria-label="Previous Offer" 
+                      className="p-1 rounded-full bg-white/10 hover:bg-amber-500 hover:text-white transition cursor-pointer border border-white/10"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => scrollOffers('right')} 
+                      aria-label="Next Offer" 
+                      className="p-1 rounded-full bg-white/10 hover:bg-amber-500 hover:text-white transition cursor-pointer border border-white/10"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Netflix Cards Horizontal Scroll */}
+                <div 
+                  ref={offersScrollRef}
+                  className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 pt-1 no-scrollbar"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {offers.filter(o => o.active !== false).map((offer, idx) => (
+                    <div 
+                      key={offer._id || idx}
+                      className="snap-start flex-none w-[220px] sm:w-[260px] md:w-[280px] group relative rounded-xl overflow-hidden border border-white/15 bg-slate-900/90 backdrop-blur-md shadow-xl transition-all duration-300 hover:scale-[1.03] hover:border-amber-400/80 cursor-pointer flex flex-col justify-between"
+                    >
+                      {/* Image Container */}
+                      <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-black">
+                        <img 
+                          src={offer.imageUrl} 
+                          alt={offer.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+                        
+                        {/* Badges */}
+                        {offer.discountBadge && (
+                          <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-black text-[9px] tracking-wider px-2 py-0.5 rounded shadow border border-yellow-300/30 uppercase">
+                            {offer.discountBadge}
+                          </span>
+                        )}
+
+                        {offer.code && (
+                          <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm border border-white/20 text-yellow-300 font-mono font-bold text-[9px] px-1.5 py-0.5 rounded">
+                            CODE: {offer.code}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Details */}
+                      <div className="p-3 flex flex-col justify-between flex-grow">
+                        <div>
+                          <h4 className="text-white font-bold text-xs sm:text-sm line-clamp-1 group-hover:text-yellow-300 transition-colors">
+                            {offer.title}
+                          </h4>
+                          {offer.subtitle && (
+                            <p className="text-white/70 text-[11px] mt-1 line-clamp-2 leading-tight">
+                              {offer.subtitle}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between pt-2 border-t border-white/10">
+                          <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1 uppercase tracking-wider">
+                            <Sparkles className="w-3 h-3" /> Offer
+                          </span>
+                          <Link
+                            to={offer.targetLink || '/book-now'}
+                            className="px-2.5 py-1 rounded bg-[#c9922a] hover:bg-[#e8b04b] text-white text-[10px] font-bold uppercase tracking-wider transition-colors shadow flex items-center gap-1"
+                          >
+                            Claim <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Direct Support Phone Numbers */}
+            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 text-white">
+              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#c9922a] text-white shadow-md">
+                  <Phone size={16} />
                 </span>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-[#e8b04b] font-bold">Direct Support</p>
-                  <a href="tel:1300927459" className="text-lg font-black hover:text-[#e8b04b] transition-colors">+91 8074004714</a>
+                  <a href="tel:1300927459" className="text-base font-black hover:text-[#e8b04b] transition-colors">+91 8074004714</a>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2557a7] text-white shadow-md">
-                  <Phone size={18} />
+              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl shadow-lg hover:border-white/20 transition-all duration-300">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2557a7] text-white shadow-md">
+                  <Phone size={16} />
                 </span>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-blue-300 font-bold">Direct Support</p>
-                  <a href="tel:919876543210" className="text-lg font-black hover:text-blue-300 transition-colors">+91 9491990163</a>
+                  <a href="tel:919876543210" className="text-base font-black hover:text-blue-300 transition-colors">+91 9491990163</a>
                 </div>
               </div>
             </div>
 
-            
           </div>
         </div>
 

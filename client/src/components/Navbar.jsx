@@ -14,30 +14,12 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [offerText, setOfferText] = useState('');
-  const [offerActive, setOfferActive] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const res = await fetch(`${API}/api/settings`);
-        const data = await res.json();
-        if (data.success && data.settings) {
-          setOfferText(data.settings.offerText || '');
-          setOfferActive(data.settings.offerActive !== undefined ? data.settings.offerActive : false);
-        }
-      } catch (err) {
-        console.error('Error fetching settings:', err);
-      }
-    }
-    fetchSettings();
   }, []);
 
   // Close mobile menu on route change
@@ -167,20 +149,6 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      )}
-      
-      {/* Moving Offer Ticker Bar */}
-      {offerActive && offerText && (
-        <Link 
-          to="/pricing" 
-          className="block w-full bg-[#c9922a] hover:bg-[#e8b04b] text-white py-2.5 text-xs font-bold uppercase tracking-wider overflow-hidden border-t border-[#fafaf8]/10 cursor-pointer select-none transition-colors"
-        >
-          <div className="marquee-container">
-            <span className="marquee-content">
-              {offerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {offerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {offerText}
-            </span>
-          </div>
-        </Link>
       )}
     </header>
   );

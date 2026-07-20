@@ -4,13 +4,22 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'washly',
+  api_key: process.env.CLOUDINARY_API_KEY || '123456789',
+  api_secret: process.env.CLOUDINARY_API_SECRET || 'secret'
+});
 
 // Database connection logic
 let isMongoConnected = false;
@@ -26,12 +35,68 @@ const customersFile = path.join(dbFolder, 'customers.json');
 const packagesFile = path.join(dbFolder, 'packages.json');
 const contactsFile = path.join(dbFolder, 'contacts.json');
 const settingsFile = path.join(dbFolder, 'settings.json');
+const offersFile = path.join(dbFolder, 'offers.json');
 
 // Initialize local JSON files if they don't exist
 if (!fs.existsSync(bookingsFile)) fs.writeFileSync(bookingsFile, JSON.stringify([]));
 if (!fs.existsSync(customersFile)) fs.writeFileSync(customersFile, JSON.stringify([]));
 if (!fs.existsSync(contactsFile)) fs.writeFileSync(contactsFile, JSON.stringify([]));
-if (!fs.existsSync(settingsFile)) fs.writeFileSync(settingsFile, JSON.stringify({ offerText: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!', offerActive: true }));
+if (!fs.existsSync(settingsFile)) fs.writeFileSync(settingsFile, JSON.stringify({ showOfferSection: true }));
+if (!fs.existsSync(offersFile)) fs.writeFileSync(offersFile, JSON.stringify([]));
+
+// Default Netflix Offers List
+const defaultOffers = [
+  {
+    _id: 'off_1',
+    title: 'Monsoon Foam Wash Blast',
+    subtitle: 'Get pH-neutral scratch-free foam wash with Carnauba Wax Shield',
+    discountBadge: 'FLAT 30% OFF',
+    code: 'WASH30',
+    imageUrl: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=800&auto=format&fit=crop',
+    targetLink: '/book-now',
+    active: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'off_2',
+    title: 'Superbike Detailing Special',
+    subtitle: 'Full chain lube, deep engine degreasing & ceramic spray shine',
+    discountBadge: 'SPECIAL ₹299 OFF',
+    code: 'BIKE299',
+    imageUrl: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop',
+    targetLink: '/book-now?type=bike',
+    active: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'off_3',
+    title: 'Interior Steam & Germ-Kill',
+    subtitle: '99.9% anti-bacterial deep steam sanitization for seats & carpets',
+    discountBadge: 'POPULAR DEAL',
+    code: 'CLEAN500',
+    imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
+    targetLink: '/book-now',
+    active: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'off_4',
+    title: 'VIP Pass Annual Membership',
+    subtitle: 'Unlimited express washes + 25% off all premium detailing packages',
+    discountBadge: 'BEST VALUE',
+    code: 'VIPPASS',
+    imageUrl: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?q=80&w=800&auto=format&fit=crop',
+    targetLink: '/pricing',
+    active: true,
+    createdAt: new Date().toISOString()
+  }
+];
+
+// Seed local offers file if empty
+const localOffers = fs.readFileSync(offersFile, 'utf-8').trim();
+if (!localOffers || localOffers === '[]') {
+  fs.writeFileSync(offersFile, JSON.stringify(defaultOffers, null, 2));
+}
 
 // Default packages list in Indian Rupees (₹) for Vijayawada, AP
 const defaultPackages = [
@@ -149,6 +214,17 @@ const PackageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+const OfferSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  subtitle: { type: String, default: '' },
+  discountBadge: { type: String, default: '' },
+  code: { type: String, default: '' },
+  imageUrl: { type: String, required: true },
+  targetLink: { type: String, default: '/book-now' },
+  active: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const SettingsSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   value: { type: String, required: true }
@@ -165,25 +241,32 @@ const ContactSchema = new mongoose.Schema({
 const Customer = mongoose.model('Customer', CustomerSchema);
 const Booking = mongoose.model('Booking', BookingSchema);
 const Package = mongoose.model('Package', PackageSchema);
+const Offer = mongoose.model('Offer', OfferSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
 const Contact = mongoose.model('Contact', ContactSchema);
 
-// Seed MongoDB with default packages and settings if empty
+// Seed MongoDB with default packages, offers and settings if empty
 async function seedDatabaseIfNeeded() {
   try {
-    // If currency changed, re-sync packages to India rates
+    // Re-sync packages to India rates
     await Package.deleteMany({});
     await Package.insertMany(defaultPackages);
     console.log('Seeded dynamic Indian Rupee packages to MongoDB.');
 
+    // Seed default offers
+    const offerCount = await Offer.countDocuments();
+    if (offerCount === 0) {
+      await Offer.insertMany(defaultOffers);
+      console.log('Seeded default Netflix offers to MongoDB.');
+    }
+
     // Seed default settings
-    const offerSetting = await Settings.findOne({ key: 'offerText' });
-    if (!offerSetting) {
-      await new Settings({ key: 'offerText', value: '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!' }).save();
-      console.log('Seeded default offerText setting to MongoDB.');
+    const showOfferSetting = await Settings.findOne({ key: 'showOfferSection' });
+    if (!showOfferSetting) {
+      await new Settings({ key: 'showOfferSection', value: 'true' }).save();
     }
   } catch (err) {
-    console.error('Error seeding packages/settings:', err);
+    console.error('Error seeding database:', err);
   }
 }
 
@@ -309,21 +392,17 @@ app.post('/api/admin/login', (req, res) => {
 // Settings routes
 app.get('/api/settings', async (req, res) => {
   try {
-    let offerText = '✨ Special Opening Offer: Get up to 30% off on all Premium Car & Bike Detail washes this week! Book today!';
-    let offerActive = true;
+    let showOfferSection = true;
     if (isMongoConnected) {
-      const setting = await Settings.findOne({ key: 'offerText' });
-      if (setting) offerText = setting.value;
-      const activeSetting = await Settings.findOne({ key: 'offerActive' });
-      if (activeSetting) offerActive = activeSetting.value === 'true';
+      const activeSetting = await Settings.findOne({ key: 'showOfferSection' });
+      if (activeSetting) showOfferSection = activeSetting.value === 'true';
     } else {
       const settings = readLocalJSON(settingsFile);
-      if (settings) {
-        if (settings.offerText !== undefined) offerText = settings.offerText;
-        if (settings.offerActive !== undefined) offerActive = settings.offerActive;
+      if (settings && settings.showOfferSection !== undefined) {
+        showOfferSection = Boolean(settings.showOfferSection);
       }
     }
-    res.json({ success: true, settings: { offerText, offerActive } });
+    res.json({ success: true, settings: { showOfferSection } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error fetching settings' });
   }
@@ -331,31 +410,175 @@ app.get('/api/settings', async (req, res) => {
 
 app.post('/api/settings', async (req, res) => {
   try {
-    const { offerText, offerActive } = req.body;
+    const { showOfferSection } = req.body;
     if (isMongoConnected) {
-      if (offerText !== undefined) {
+      if (showOfferSection !== undefined) {
         await Settings.findOneAndUpdate(
-          { key: 'offerText' },
-          { value: offerText },
-          { upsert: true, new: true }
-        );
-      }
-      if (offerActive !== undefined) {
-        await Settings.findOneAndUpdate(
-          { key: 'offerActive' },
-          { value: offerActive.toString() },
+          { key: 'showOfferSection' },
+          { value: showOfferSection.toString() },
           { upsert: true, new: true }
         );
       }
     } else {
       const settings = readLocalJSON(settingsFile) || {};
-      if (offerText !== undefined) settings.offerText = offerText;
-      if (offerActive !== undefined) settings.offerActive = offerActive;
+      if (showOfferSection !== undefined) settings.showOfferSection = Boolean(showOfferSection);
       writeLocalJSON(settingsFile, settings);
     }
     res.json({ success: true, message: 'Settings updated successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error updating settings' });
+  }
+});
+
+// Cloudinary Image Upload Endpoint
+app.post('/api/upload-image', async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ success: false, message: 'Image data is required' });
+    }
+
+    try {
+      const uploadRes = await cloudinary.uploader.upload(image, {
+        folder: 'washly_offers',
+        resource_type: 'auto'
+      });
+      return res.json({ success: true, url: uploadRes.secure_url });
+    } catch (cErr) {
+      console.warn('Cloudinary upload warning:', cErr.message);
+      // Fallback: If Cloudinary keys are unconfigured or fail, return the image data string or direct URL
+      return res.json({ 
+        success: true, 
+        url: image, 
+        warning: 'Uploaded image using fallback mode (Cloudinary keys unconfigured).' 
+      });
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ success: false, message: 'Failed to process image upload' });
+  }
+});
+
+// OFFERS CRUD API
+app.get('/api/offers', async (req, res) => {
+  try {
+    let offers = [];
+    let showOfferSection = true;
+
+    if (isMongoConnected) {
+      offers = await Offer.find().sort({ createdAt: -1 });
+      const setting = await Settings.findOne({ key: 'showOfferSection' });
+      if (setting) showOfferSection = setting.value === 'true';
+    } else {
+      offers = readLocalJSON(offersFile) || [];
+      const settings = readLocalJSON(settingsFile) || {};
+      if (settings.showOfferSection !== undefined) {
+        showOfferSection = Boolean(settings.showOfferSection);
+      }
+    }
+
+    res.json({ success: true, offers, showOfferSection });
+  } catch (error) {
+    console.error('Error fetching offers:', error);
+    res.status(500).json({ success: false, offers: defaultOffers, showOfferSection: true });
+  }
+});
+
+app.post('/api/offers', async (req, res) => {
+  try {
+    const { title, subtitle, discountBadge, code, imageUrl, targetLink, active } = req.body;
+    if (!title || !imageUrl) {
+      return res.status(400).json({ success: false, message: 'Title and image URL are required' });
+    }
+
+    let savedOffer;
+    if (isMongoConnected) {
+      const newOffer = new Offer({
+        title, subtitle, discountBadge, code, imageUrl, targetLink, active: active !== undefined ? active : true
+      });
+      savedOffer = await newOffer.save();
+    } else {
+      const offers = readLocalJSON(offersFile) || [];
+      savedOffer = {
+        _id: 'off_' + Math.random().toString(36).substr(2, 9),
+        title, subtitle, discountBadge, code, imageUrl, targetLink, active: active !== undefined ? active : true,
+        createdAt: new Date().toISOString()
+      };
+      offers.unshift(savedOffer);
+      writeLocalJSON(offersFile, offers);
+    }
+
+    res.status(201).json({ success: true, offer: savedOffer });
+  } catch (error) {
+    console.error('Error creating offer:', error);
+    res.status(500).json({ success: false, message: 'Server error creating offer' });
+  }
+});
+
+app.put('/api/offers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, subtitle, discountBadge, code, imageUrl, targetLink, active } = req.body;
+
+    let updatedOffer;
+    if (isMongoConnected) {
+      updatedOffer = await Offer.findByIdAndUpdate(
+        id,
+        { title, subtitle, discountBadge, code, imageUrl, targetLink, active },
+        { new: true }
+      );
+    } else {
+      const offers = readLocalJSON(offersFile) || [];
+      const index = offers.findIndex(o => o._id === id);
+      if (index === -1) return res.status(404).json({ success: false, message: 'Offer not found' });
+
+      offers[index] = { ...offers[index], title, subtitle, discountBadge, code, imageUrl, targetLink, active };
+      writeLocalJSON(offersFile, offers);
+      updatedOffer = offers[index];
+    }
+
+    res.json({ success: true, offer: updatedOffer });
+  } catch (error) {
+    console.error('Error updating offer:', error);
+    res.status(500).json({ success: false, message: 'Server error updating offer' });
+  }
+});
+
+app.delete('/api/offers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (isMongoConnected) {
+      await Offer.findByIdAndDelete(id);
+    } else {
+      const offers = readLocalJSON(offersFile) || [];
+      const filtered = offers.filter(o => o._id !== id);
+      writeLocalJSON(offersFile, filtered);
+    }
+    res.json({ success: true, message: 'Offer deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting offer:', error);
+    res.status(500).json({ success: false, message: 'Server error deleting offer' });
+  }
+});
+
+app.post('/api/offers/toggle-section', async (req, res) => {
+  try {
+    const { showOfferSection } = req.body;
+    if (isMongoConnected) {
+      await Settings.findOneAndUpdate(
+        { key: 'showOfferSection' },
+        { value: showOfferSection ? 'true' : 'false' },
+        { upsert: true, new: true }
+      );
+    } else {
+      const settings = readLocalJSON(settingsFile) || {};
+      settings.showOfferSection = Boolean(showOfferSection);
+      writeLocalJSON(settingsFile, settings);
+    }
+    res.json({ success: true, showOfferSection: Boolean(showOfferSection) });
+  } catch (error) {
+    console.error('Error toggling offer section:', error);
+    res.status(500).json({ success: false, message: 'Server error toggling offer section' });
   }
 });
 

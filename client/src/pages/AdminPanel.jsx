@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import {
   Lock, LogOut, RefreshCw, BookOpen, Users,
   Eye, ExternalLink, CheckCircle, AlertTriangle,
-  Bike, Car, X, TrendingUp, Settings, Plus, Edit2, Trash2, Calendar, Mail
+  Bike, Car, X, TrendingUp, Settings, Plus, Edit2, Trash2, Calendar, Mail,
+  Sparkles, Upload, Image, EyeOff, Tag, Check
 } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -28,13 +29,15 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuth] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState('bookings'); // bookings, customers, packages, analytics
+  const [activeTab, setActiveTab] = useState('bookings'); // bookings, customers, packages, settings, messages, analytics
   
   // Data States
   const [bookings, setBookings] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [packages, setPackages] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [showOfferSection, setShowOfferSection] = useState(true);
   const [loading, setLoading] = useState(false);
   
   // Filters & Sorting
@@ -48,32 +51,34 @@ export default function AdminPanel() {
   const [editingPackage, setEditingPackage] = useState(null);
   const [isPkgModalOpen, setIsPkgModalOpen] = useState(false);
   const [pkgForm, setPkgForm] = useState({ name: '', price: '', originalPrice: '', category: 'car', time: '', extra: '', features: '', badge: '', featured: false });
-  const [offerSettingText, setOfferSettingText] = useState('');
-  const [offerSettingActive, setOfferSettingActive] = useState(false);
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [settingsMessage, setSettingsMessage] = useState('');
   
+  // Netflix Offer Modals & State
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [uploadingOfferImg, setUploadingOfferImg] = useState(false);
+  const [offerForm, setOfferForm] = useState({ title: '', subtitle: '', discountBadge: '', code: '', imageUrl: '', targetLink: '/book-now', active: true });
+
   const [serverError, setServerError] = useState('');
 
   const fetchAll = async () => {
     setLoading(true); setServerError('');
     try {
-      const [bRes, cRes, pRes, mRes, sRes] = await Promise.all([
+      const [bRes, cRes, pRes, mRes, oRes] = await Promise.all([
         fetch(`${API}/api/bookings`),
         fetch(`${API}/api/customers`),
         fetch(`${API}/api/packages`),
         fetch(`${API}/api/contacts`),
-        fetch(`${API}/api/settings`)
+        fetch(`${API}/api/offers`)
       ]);
-      if (!bRes.ok || !cRes.ok || !pRes.ok || !mRes.ok || !sRes.ok) throw new Error('Server error');
-      const [b, c, p, m, s] = await Promise.all([bRes.json(), cRes.json(), pRes.json(), mRes.json(), sRes.json()]);
+      if (!bRes.ok || !cRes.ok || !pRes.ok || !mRes.ok || !oRes.ok) throw new Error('Server error');
+      const [b, c, p, m, o] = await Promise.all([bRes.json(), cRes.json(), pRes.json(), mRes.json(), oRes.json()]);
       if (b.success) setBookings(b.bookings);
       if (c.success) setCustomers(c.customers);
       if (p.success) setPackages(p.packages);
       if (m.success) setContacts(m.contacts);
-      if (s.success && s.settings) {
-        setOfferSettingText(s.settings.offerText || '');
-        setOfferSettingActive(s.settings.offerActive !== undefined ? s.settings.offerActive : false);
+      if (o.success) {
+        setOffers(o.offers || []);
+        setShowOfferSection(o.showOfferSection !== undefined ? o.showOfferSection : true);
       }
     } catch {
       setServerError('Cannot reach server at port 5001. Ensure your backend is running.');
@@ -125,8 +130,6 @@ export default function AdminPanel() {
       });
       setBookings(prev => prev.map(b => b._id === id ? { ...b, status } : b));
       if (selectedBooking?._id === id) setSelected(prev => ({ ...prev, status }));
-      
-
     } catch (e) {
       console.error(e);
     }
@@ -179,27 +182,108 @@ export default function AdminPanel() {
     }
   };
 
-  const handleSaveSettings = async (e) => {
-    e.preventDefault();
-    setSavingSettings(true);
-    setSettingsMessage('');
+  // Netflix Offers Handlers
+  const handleToggleOfferSection = async () => {
     try {
-      const res = await fetch(`${API}/api/settings`, {
+      const nextVal = !showOfferSection;
+      setShowOfferSection(nextVal);
+      await fetch(`${API}/api/offers/toggle-section`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerText: offerSettingText, offerActive: offerSettingActive })
+        body: JSON.stringify({ showOfferSection: nextVal })
       });
+    } catch (err) {
+      console.error('Error toggling offer section:', err);
+    }
+  };
+
+  const handleFileUploadToCloudinary = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingOfferImg(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        const res = await fetch(`${API}/api/upload-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Data })
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          setOfferForm(prev => ({ ...prev, imageUrl: data.url }));
+        } else {
+          alert('Failed to upload image: ' + (data.message || 'Unknown error'));
+        }
+        setUploadingOfferImg(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading file to Cloudinary.');
+      setUploadingOfferImg(false);
+    }
+  };
+
+  const handleSaveOffer = async (e) => {
+    e.preventDefault();
+    if (!offerForm.title || !offerForm.imageUrl) {
+      alert('Offer title and image URL are required!');
+      return;
+    }
+    try {
+      let res;
+      if (editingOffer) {
+        res = await fetch(`${API}/api/offers/${editingOffer._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(offerForm)
+        });
+      } else {
+        res = await fetch(`${API}/api/offers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(offerForm)
+        });
+      }
       const data = await res.json();
       if (data.success) {
-        setSettingsMessage('Offer ticker updated successfully!');
-      } else {
-        setSettingsMessage('Failed to update offer ticker.');
+        setIsOfferModalOpen(false);
+        setEditingOffer(null);
+        setOfferForm({ title: '', subtitle: '', discountBadge: '', code: '', imageUrl: '', targetLink: '/book-now', active: true });
+        fetchAll();
       }
     } catch (err) {
       console.error(err);
-      setSettingsMessage('Error connecting to backend.');
-    } finally {
-      setSavingSettings(false);
+    }
+  };
+
+  const handleDeleteOffer = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this offer card?')) return;
+    try {
+      const res = await fetch(`${API}/api/offers/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) fetchAll();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleOfferActive = async (offer) => {
+    try {
+      const updated = { ...offer, active: !offer.active };
+      const res = await fetch(`${API}/api/offers/${offer._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOffers(prev => prev.map(o => o._id === offer._id ? { ...o, active: !offer.active } : o));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -761,59 +845,152 @@ export default function AdminPanel() {
             )}
           </div>
         )}
-        {/* ═══════════════════════════════════ TAB 6: SETTINGS (OFFER TICKER) */}
+        {/* ═══════════════════════════════════ TAB 4: NETFLIX OFFERS MANAGER */}
         {activeTab === 'settings' && (
-          <div className="bg-white rounded-2xl border border-[#e4e1da] shadow-sm p-6 max-w-xl">
-            <h3 className="font-serif text-2xl font-bold text-[#1a3c6e] mb-2">Offer Ticker Settings</h3>
-            <p className="text-sm text-[#8a8378] mb-6">Configure the moving notification/offer bar displayed globally below the website navigation header.</p>
-            
-            <form onSubmit={handleSaveSettings} className="space-y-4">
-              {settingsMessage && (
-                <div className={`p-4 rounded-xl text-sm font-semibold border ${
-                  settingsMessage.includes('successfully') 
-                    ? 'bg-green-50 border-green-200 text-green-700' 
-                    : 'bg-red-50 border-red-200 text-red-700'
-                }`}>
-                  {settingsMessage}
-                </div>
-              )}
-              
+          <div className="space-y-6">
+            {/* Global Controls Banner */}
+            <div className="bg-white rounded-2xl border border-[#e4e1da] shadow-sm p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
-                <label className="label-premium">Offer Bar Text</label>
-                <textarea
-                  rows={4}
-                  required
-                  value={offerSettingText}
-                  onChange={e => setOfferSettingText(e.target.value)}
-                  className="input-premium"
-                  placeholder="e.g. Special Opening Offer: Get up to 30% off on all Detailing services this weekend! Book now!"
-                />
-                <p className="text-xs text-[#8a8378] mt-1.5 leading-relaxed">
-                  Tip: Use emojis like ✨, 🚨, or 🔥 to make the text stand out. This text scrolls automatically from right to left.
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 border border-amber-500/20">
+                    <Sparkles className="w-4 h-4 text-amber-500" /> Netflix Style Slider
+                  </span>
+                  {showOfferSection ? (
+                    <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider border border-green-300 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active on Website
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-wider border border-red-300 flex items-center gap-1">
+                      <EyeOff className="w-3 h-3" /> Section Removed / Hidden
+                    </span>
+                  )}
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-[#1a3c6e]">Offers Projection Manager</h3>
+                <p className="text-sm text-[#8a8378] mt-1 max-w-xl">
+                  Manage high-impact offers displayed in the Netflix slider on the homepage between action buttons and support numbers. Images are uploaded to Cloudinary.
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 py-2">
-                <input 
-                  type="checkbox" 
-                  id="offer-active-check" 
-                  checked={offerSettingActive} 
-                  onChange={e => setOfferSettingActive(e.target.checked)} 
-                  className="w-4 h-4 rounded text-[#1a3c6e] focus:ring-[#1a3c6e] cursor-pointer" 
-                />
-                <label htmlFor="offer-active-check" className="text-sm font-bold text-[#1a3c6e] cursor-pointer select-none">
-                  Display Offer Ticker on Website
-                </label>
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Remove/Show Offer Section Toggle */}
+                <div className="flex items-center gap-3 bg-[#fafaf8] px-4 py-3 rounded-xl border border-[#e4e1da]">
+                  <input 
+                    type="checkbox" 
+                    id="toggle-offer-section" 
+                    checked={showOfferSection} 
+                    onChange={handleToggleOfferSection} 
+                    className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer" 
+                  />
+                  <label htmlFor="toggle-offer-section" className="text-xs font-bold text-[#1a3c6e] cursor-pointer select-none">
+                    {showOfferSection ? 'Offer Section Enabled' : 'Offer Section Disabled'}
+                  </label>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setEditingOffer(null);
+                    setOfferForm({ title: '', subtitle: '', discountBadge: '', code: '', imageUrl: '', targetLink: '/book-now', active: true });
+                    setIsOfferModalOpen(true);
+                  }}
+                  className="btn-gold flex items-center gap-2 shadow-md cursor-pointer !py-3 !px-5"
+                >
+                  <Plus className="w-4 h-4" /> Add Offer Card
+                </button>
               </div>
-              
-              <button 
-                type="submit" 
-                disabled={savingSettings}
-                className="btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {savingSettings ? 'Saving...' : 'Update Ticker text'}
-              </button>
-            </form>
+            </div>
+
+            {/* Offers Cards Grid */}
+            {offers.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[#e4e1da] p-12 text-center text-[#8a8378]">
+                <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-3 opacity-60" />
+                <p className="font-bold text-base text-[#1a3c6e]">No offers currently created</p>
+                <p className="text-xs mt-1">Click "Add Offer Card" above to add your first offer to the Netflix slider!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {offers.map((offer) => (
+                  <div 
+                    key={offer._id} 
+                    className={`bg-white rounded-2xl border transition-all shadow-sm overflow-hidden flex flex-col justify-between ${
+                      offer.active ? 'border-[#e4e1da] hover:shadow-lg' : 'border-gray-200 opacity-60 bg-gray-50'
+                    }`}
+                  >
+                    {/* Card Media Preview */}
+                    <div className="relative h-44 w-full bg-slate-900 overflow-hidden">
+                      <img src={offer.imageUrl} alt={offer.title} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      
+                      {offer.discountBadge && (
+                        <span className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded shadow">
+                          {offer.discountBadge}
+                        </span>
+                      )}
+
+                      {offer.code && (
+                        <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-yellow-300 font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-white/20">
+                          CODE: {offer.code}
+                        </span>
+                      )}
+
+                      <div className="absolute bottom-3 left-3 right-3 text-white">
+                        <h4 className="font-bold text-base line-clamp-1">{offer.title}</h4>
+                        {offer.subtitle && <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{offer.subtitle}</p>}
+                      </div>
+                    </div>
+
+                    {/* Card Footer Actions */}
+                    <div className="p-4 flex items-center justify-between border-t border-[#e4e1da] bg-[#fafaf8]">
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleToggleOfferActive(offer)}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border cursor-pointer ${
+                            offer.active 
+                              ? 'bg-green-50 text-green-700 border-green-300' 
+                              : 'bg-gray-100 text-gray-600 border-gray-300'
+                          }`}
+                        >
+                          {offer.active ? 'Visible' : 'Hidden'}
+                        </button>
+                        {offer.imageUrl && offer.imageUrl.includes('cloudinary') && (
+                          <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            Cloudinary
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setEditingOffer(offer);
+                            setOfferForm({
+                              title: offer.title || '',
+                              subtitle: offer.subtitle || '',
+                              discountBadge: offer.discountBadge || '',
+                              code: offer.code || '',
+                              imageUrl: offer.imageUrl || '',
+                              targetLink: offer.targetLink || '/book-now',
+                              active: offer.active !== undefined ? offer.active : true
+                            });
+                            setIsOfferModalOpen(true);
+                          }}
+                          className="p-2 text-[#1a3c6e] hover:bg-[#e4e1da]/60 rounded-lg transition cursor-pointer"
+                          title="Edit Offer"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOffer(offer._id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                          title="Delete Offer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -974,6 +1151,148 @@ export default function AdminPanel() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL: ADD/EDIT NETFLIX OFFER ───────────────────────────────── */}
+      {isOfferModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsOfferModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-[#1a3c6e] px-6 py-5 flex justify-between items-center text-white">
+              <h3 className="font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                {editingOffer ? 'Edit Netflix Offer Card' : 'Create Netflix Offer Card'}
+              </h3>
+              <button onClick={() => setIsOfferModalOpen(false)} className="text-white/70 hover:text-white p-1 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveOffer} className="p-6 space-y-4 max-h-[78vh] overflow-y-auto">
+              <div>
+                <label className="label-premium">Offer Title *</label>
+                <input 
+                  required 
+                  type="text" 
+                  value={offerForm.title} 
+                  onChange={e => setOfferForm({...offerForm, title: e.target.value})} 
+                  className="input-premium" 
+                  placeholder="e.g. Monsoon Foam Wash Blast" 
+                />
+              </div>
+
+              <div>
+                <label className="label-premium">Subtitle / Description</label>
+                <input 
+                  type="text" 
+                  value={offerForm.subtitle} 
+                  onChange={e => setOfferForm({...offerForm, subtitle: e.target.value})} 
+                  className="input-premium" 
+                  placeholder="e.g. Full exterior foam wash with Carnauba Wax Shield" 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label-premium">Discount Badge / Tag</label>
+                  <input 
+                    type="text" 
+                    value={offerForm.discountBadge} 
+                    onChange={e => setOfferForm({...offerForm, discountBadge: e.target.value})} 
+                    className="input-premium" 
+                    placeholder="e.g. FLAT 30% OFF" 
+                  />
+                </div>
+                <div>
+                  <label className="label-premium">Promo Code</label>
+                  <input 
+                    type="text" 
+                    value={offerForm.code} 
+                    onChange={e => setOfferForm({...offerForm, code: e.target.value})} 
+                    className="input-premium" 
+                    placeholder="e.g. WASH30" 
+                  />
+                </div>
+              </div>
+
+              {/* Cloudinary Image Upload & Link Section */}
+              <div className="space-y-2 border-t border-b border-[#e4e1da] py-3.5 my-2">
+                <label className="label-premium flex items-center justify-between">
+                  <span>Offer Image (Saved on Cloudinary) *</span>
+                  {uploadingOfferImg && <span className="text-xs font-bold text-amber-600 animate-pulse">Uploading to Cloudinary...</span>}
+                </label>
+                
+                <div className="flex items-center gap-3">
+                  <label className="btn-primary !py-2.5 !px-4 !text-xs cursor-pointer flex items-center gap-2 shrink-0">
+                    <Upload className="w-4 h-4" /> Upload File
+                    <input type="file" accept="image/*" onChange={handleFileUploadToCloudinary} className="hidden" />
+                  </label>
+                  <span className="text-xs text-[#8a8378] font-bold">OR</span>
+                  <input 
+                    required
+                    type="text" 
+                    value={offerForm.imageUrl} 
+                    onChange={e => setOfferForm({...offerForm, imageUrl: e.target.value})} 
+                    className="input-premium text-xs" 
+                    placeholder="Cloudinary or Image URL (https://...)" 
+                  />
+                </div>
+
+                {/* Image Preview */}
+                {offerForm.imageUrl && (
+                  <div className="mt-2 relative h-32 w-full rounded-xl overflow-hidden border border-[#e4e1da] bg-black">
+                    <img src={offerForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded">
+                      Image Preview
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="label-premium">Target Action Link</label>
+                <select 
+                  value={offerForm.targetLink} 
+                  onChange={e => setOfferForm({...offerForm, targetLink: e.target.value})} 
+                  className="input-premium"
+                >
+                  <option value="/book-now">Book Car Wash (/book-now)</option>
+                  <option value="/book-now?type=bike">Book Bike Wash (/book-now?type=bike)</option>
+                  <option value="/pricing">View Pricing (/pricing)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <input 
+                  type="checkbox" 
+                  id="offer-card-active" 
+                  checked={offerForm.active} 
+                  onChange={e => setOfferForm({...offerForm, active: e.target.checked})} 
+                  className="w-4 h-4 rounded text-[#1a3c6e] cursor-pointer" 
+                />
+                <label htmlFor="offer-card-active" className="text-sm font-bold text-[#1a3c6e] cursor-pointer select-none">
+                  Display this offer card in Netflix slider
+                </label>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-[#e4e1da]">
+                <button 
+                  type="button" 
+                  onClick={() => setIsOfferModalOpen(false)} 
+                  className="px-5 py-2.5 rounded-lg border border-[#e4e1da] text-xs font-bold uppercase tracking-wider text-[#8a8378] hover:bg-[#f4f2ee] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={uploadingOfferImg} 
+                  className="btn-gold shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {editingOffer ? 'Save Offer Card' : 'Create Offer Card'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
