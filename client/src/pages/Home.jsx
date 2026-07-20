@@ -169,14 +169,18 @@ export default function Home() {
             </p>
 
             {/* Compact Mobile-Friendly Horizontal CTA Buttons */}
-            <div className="hero-ctas flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 mb-4 w-full max-w-xl">
-              <Link to="/book-now" className="btn-primary !px-3 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer">
-                <Car className="w-3.5 h-3.5" /> Book Car Wash
+            <div className="hero-ctas flex flex-row flex-nowrap items-center gap-1.5 sm:gap-3 mb-4 w-full max-w-xl">
+              <Link to="/book-now" className="btn-primary !px-2.5 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer whitespace-nowrap">
+                <Car className="w-3.5 h-3.5" />
+                <span className="sm:hidden">Car</span>
+                <span className="hidden sm:inline">Book Car Wash</span>
               </Link>
-              <Link to="/book-now?type=bike" className="btn-gold !px-3 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer">
-                <Bike className="w-3.5 h-3.5" /> Book Bike Wash
+              <Link to="/book-now?type=bike" className="btn-gold !px-2.5 !py-2 !text-[11px] sm:!px-4 sm:!py-2.5 sm:!text-xs flex-1 sm:flex-none justify-center shadow-lg cursor-pointer whitespace-nowrap">
+                <Bike className="w-3.5 h-3.5" />
+                <span className="sm:hidden">Bike</span>
+                <span className="hidden sm:inline">Book Bike Wash</span>
               </Link>
-              <Link to="/pricing" className="inline-flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/40 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 flex-1 sm:flex-none cursor-pointer">
+              <Link to="/pricing" className="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/40 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#1a3c6e] transition-all duration-300 flex-1 sm:flex-none cursor-pointer whitespace-nowrap">
                 View Pricing
               </Link>
             </div>

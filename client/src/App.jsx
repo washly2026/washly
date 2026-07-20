@@ -24,7 +24,7 @@ function ScrollToTop() {
 function WhatsAppWidget() {
   return (
     <a
-      href="https://wa.me/919876543210" // Washly Vijayawada support WhatsApp number
+      href="https://wa.me/918074004714" // Washly Vijayawada support WhatsApp number (+91 8074004714)
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bg-[#25D366] hover:bg-[#20ba56] text-white rounded-full shadow-[0_4px_24px_rgba(37,211,102,0.45)] hover:shadow-[0_6px_30px_rgba(37,211,102,0.6)] transition-all duration-300 hover:scale-110 active:scale-95 group cursor-pointer flex items-center justify-center"
